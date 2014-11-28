@@ -1,36 +1,7 @@
-# -*- coding: utf-8 -*-
-
-#########################################################################
-## This scaffolding model makes your app work on Google App Engine too
-## File is released under public domain and you can use without limitations
-#########################################################################
-
-## if SSL/HTTPS is properly configured and you want all HTTP requests to
-## be redirected to HTTPS, uncomment the line below:
-# request.requires_https()
 
 if not request.env.web2py_runtime_gae:
-    ## if NOT running on Google App Engine use SQLite or other DB
-    db = DAL('sqlite://storage.sqlite',pool_size=1,check_reserved=['all'])
-else:
-    ## connect to Google BigTable (optional 'google:datastore://namespace')
-    db = DAL('google:datastore+ndb')
-    ## store sessions and tickets there
-    session.connect(request, response, db=db)
-    ## or store session in Memcache, Redis, etc.
-    ## from gluon.contrib.memdb import MEMDB
-    ## from google.appengine.api.memcache import Client
-    ## session.connect(request, response, db = MEMDB(Client()))
+    db = DAL('sqlite://storage.sqlite')
 
-## by default give a view/generic.extension to all actions from localhost
-## none otherwise. a pattern can be 'controller/function.extension'
-response.generic_patterns = ['*'] if request.is_local else []
-
-## (optional) optimize handling of static files
-# response.optimize_css = 'concat,minify,inline'
-# response.optimize_js = 'concat,minify,inline'
-## (optional) static assets folder versioning
-# response.static_version = '0.0.0'
 #########################################################################
 ## Here is sample code if you need for
 ## - email capabilities
@@ -42,46 +13,116 @@ response.generic_patterns = ['*'] if request.is_local else []
 #########################################################################
 
 from gluon.tools import Auth, Service, PluginManager
+#
+# auth = Auth(db)
+# service = Service()
+# plugins = PluginManager()
+#
+# ## create all tables needed by auth if not custom tables
+# auth.define_tables(username=False, signature=False)
+#
+# ## configure email
+# mail = auth.settings.mailer
+# mail.settings.server = 'logging' if request.is_local else 'smtp.gmail.com:587'
+# mail.settings.sender = 'you@gmail.com'
+# mail.settings.login = 'username:password'
+#
+# ## configure auth policy
+# auth.settings.registration_requires_verification = False
+# auth.settings.registration_requires_approval = False
+# auth.settings.reset_password_requires_verification = True
+#
+# ## if you need to use OpenID, Facebook, MySpace, Twitter, Linkedin, etc.
+# ## register with janrain.com, write your domain:api_key in private/janrain.key
+# from gluon.contrib.login_methods.janrain_account import use_janrain
+# use_janrain(auth, filename='private/janrain.key')
 
-auth = Auth(db)
-service = Service()
-plugins = PluginManager()
+## Address table definition
 
-## create all tables needed by auth if not custom tables
-auth.define_tables(username=False, signature=False)
+# Fields
+street_address = Field('street_address', 'string', required=True)
+city = Field('city', 'string', required=True)
+country = Field('country', 'string', required=True)
+postcode = Field('postcode', 'string', length=7, required=True)
 
-## configure email
-mail = auth.settings.mailer
-mail.settings.server = 'logging' if request.is_local else 'smtp.gmail.com:587'
-mail.settings.sender = 'you@gmail.com'
-mail.settings.login = 'username:password'
+# Table definition
+db.define_table('address',
+                street_address, city, country, postcode)
 
-## configure auth policy
-auth.settings.registration_requires_verification = False
-auth.settings.registration_requires_approval = False
-auth.settings.reset_password_requires_verification = True
+## Credit Card table definition
 
-## if you need to use OpenID, Facebook, MySpace, Twitter, Linkedin, etc.
-## register with janrain.com, write your domain:api_key in private/janrain.key
-from gluon.contrib.login_methods.janrain_account import use_janrain
-use_janrain(auth, filename='private/janrain.key')
+# Fields
+number = Field('number', 'integer', required=True)
+# Expiration should store month and year. However, the closest data type for this is 'date'.
+# We will use it and ignore the day component
+expiration = Field('expiration', 'date', required=True)
+# pid stands for personal identification code
+pid = Field('pid', 'integer', required=True)
+address = Field('address', db.address, required=True)
 
-#########################################################################
-## Define your tables below (or better in another model file) for example
-##
-## >>> db.define_table('mytable',Field('myfield','string'))
-##
-## Fields can be 'string','text','password','integer','double','boolean'
-##       'date','time','datetime','blob','upload', 'reference TABLENAME'
-## There is an implicit 'id integer autoincrement' field
-## Consult manual for more options, validators, etc.
-##
-## More API examples for controllers:
-##
-## >>> db.mytable.insert(myfield='value')
-## >>> rows=db(db.mytable.myfield=='value').select(db.mytable.ALL)
-## >>> for row in rows: print row.id, row.myfield
-#########################################################################
+# Table definition
+db.define_table('credit_card',
+                number, expiration, pid, address,
+                format='$(number)s')
 
-## after defining tables, uncomment below to enable auditing
-# auth.enable_record_versioning(db)
+## User table definition
+
+# Fields
+username = Field('username', 'string', unique=True, required=True)
+real_name = Field('real_name', 'string', required=True)
+birthdate = Field('birthdate', 'date', required=True)
+address = Field('address', db.address, required=True)
+credit_card = Field('credit_card', db.credit_card, required=True)
+
+# Table declaration
+db.define_table('user',
+                username, real_name, birthdate, address, credit_card,
+                format='%(username)s')
+
+## Bootable table definition
+
+# Fields
+# All of the properties are required in order to create this object
+title = Field('title', 'string', required=True)
+description = Field('description', 'string', 120, required=True)
+category = Field('category', 'string', 25, required=True)
+funding_goal = Field('funding_goal', 'decimal(19,2)', required=True)
+image = Field('image', 'upload', required=True)
+status = Field('status', requires=IS_IN_SET(['NotAvailable', 'OpenForPledges', 'Funded', 'NotFunded']), required=True)
+creation_date = Field('creation_date', 'date', required=True)
+user = Field('user', db.user, required=True)
+long_description = Field('long_description', 'text', required=True)
+
+# Table declaration
+db.define_table('bootable',
+                title, description, category, funding_goal, image, status, creation_date, username, long_description,
+                format='%(title)s')
+
+## Pledge table definition
+## To reiterate the specification: a 'pledge' is a concrete instance of a user pledging some money towards a specific
+## bootable, as opposed to a 'pledge tier', which is an entity defining rewards for a certain amount of money pledged
+
+# Fields
+value = Field('value', 'decimal(19,2)', required=True)
+bootable = Field('bootable', db.bootable, required=True)
+user = Field('user', db.user, required=True)
+
+# Table Definition
+db.define_table('pledge',
+                value, bootable, user)
+
+## Pledge Tier table definition
+## To reiterate what is said in the specification, a pledge tier is a set of rewards that the user is to be rewarded
+## with if it pledges a required amount of money; as opposed to an entity defining what user pledged towards what
+## bootable and for what amount
+
+# Fields
+pledge_value = Field('pledge_value', 'decimal(19,2)', required=True)
+description = Field('description', 'string', required=True)
+includes_lower = Field('includes_lower', 'boolean', default=False)
+bootable = Field('bootable', db.bootable, required=True)
+
+# Table declaration
+
+db.define_table('pledge_tier',
+                pledge_value, description, includes_lower, bootable)

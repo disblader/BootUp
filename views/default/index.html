@@ -3,17 +3,18 @@
 
 <!-- Expected task helper window thing yo -->
 
-
 <!-- Recently created -->
+<h3>Recently Created</h3>
 <ul>
-    {{for bootable in db().select(db.bootable.ALL, orderby=db.bootable.creation_date):}}
+    {{for bootable in db().select(db.bootable.ALL, orderby=~db.bootable.creation_date, limitby=(0,5)):}}
     {{=LI(bootable.title + ' ' + bootable.creation_date.strftime('%d/%m/%y'))}}
     {{pass}}
 </ul>
 
 <!-- Recently funded -->
+<h3>Recently Funded</h3>
 <ul>
-    {{for bootable in db().select(db.bootable.ALL, orderby=db.bootable.creation_date):}}
-    {{=LI(bootable.title + ' ' + bootable.creation_date.strftime('%d/%m/%y'))}}
+    {{for bootable in db(db.bootable.status=='Funded').select(orderby=~db.bootable.funded_on, limitby=(0,5)):}}
+    {{=LI(bootable.title + ' ' + bootable.funded_on.strftime('%d/%m/%y'))}}
     {{pass}}
 </ul>

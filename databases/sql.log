@@ -53,3 +53,277 @@ CREATE TABLE auth_cas(
     renew CHAR(1)
 );
 success!
+timestamp: 2014-11-28T16:16:03.194000
+CREATE TABLE address(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    street_address CHAR(512),
+    city CHAR(512),
+    country CHAR(512),
+    postcode CHAR(7)
+);
+success!
+timestamp: 2014-11-28T16:16:03.228000
+CREATE TABLE credit_card(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    number INTEGER,
+    expiration DATE,
+    pid INTEGER,
+    address INTEGER REFERENCES address (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2014-11-28T16:16:03.238000
+CREATE TABLE user(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username CHAR(512) UNIQUE,
+    real_name CHAR(512),
+    birthdate DATE,
+    address INTEGER REFERENCES address (id) ON DELETE CASCADE,
+    credit_card INTEGER REFERENCES credit_card (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2014-11-28T16:16:03.250000
+CREATE TABLE bootable(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title CHAR(512),
+    description CHAR(120),
+    category CHAR(25),
+    funding_goal DOUBLE,
+    image CHAR(512),
+    status CHAR(512),
+    creation_date DATE,
+    username CHAR(512) UNIQUE,
+    long_description TEXT
+);
+success!
+timestamp: 2014-11-28T16:16:03.264000
+CREATE TABLE pledge(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    value DOUBLE,
+    bootable INTEGER REFERENCES bootable (id) ON DELETE CASCADE,
+    user INTEGER REFERENCES user (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2014-11-28T16:16:03.277000
+CREATE TABLE pledge_tier(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pledge_value DOUBLE,
+    description CHAR(512),
+    includes_lower CHAR(1),
+    bootable INTEGER REFERENCES bootable (id) ON DELETE CASCADE
+);
+success!
+success!
+success!
+success!
+timestamp: 2014-11-28T18:45:54.137000
+ALTER TABLE bootable ADD user INTEGER REFERENCES user (id) ON DELETE CASCADE;
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+timestamp: 2014-11-28T18:53:54.125000
+ALTER TABLE bootable ADD bm_description TEXT;
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!

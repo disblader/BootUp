@@ -47,12 +47,13 @@ postcode = Field('postcode', 'string', length=7, required=True)
 
 # Table definition
 db.define_table('address',
-                street_address, city, country, postcode)
+                street_address, city, country, postcode,
+                format = '%(street_address)s %(postcode)s')
 
 ## Credit Card table definition
 
 # Fields
-number = Field('number', 'integer', required=True)
+number = Field('number', 'bigint', required=True)
 # Expiration should store month and year. However, the closest data type for this is 'date'.
 # We will use it and ignore the day component
 expiration = Field('expiration', 'date', required=True)
@@ -63,7 +64,7 @@ address = Field('address', db.address, required=True)
 # Table definition
 db.define_table('credit_card',
                 number, expiration, pid, address,
-                format='$(number)s')
+                format='%(number)s')
 
 ## User table definition
 
@@ -84,18 +85,21 @@ db.define_table('user',
 # Fields
 # All of the properties are required in order to create this object
 title = Field('title', 'string', required=True)
-description = Field('description', 'string', 120, required=True)
-category = Field('category', 'string', 25, required=True)
+description = Field('description', 'string', length=120, required=True)
+category = Field('category', 'string', requires=IS_IN_SET(['Art', 'Comics', 'Crafts', 'Fashion', 'Film', 'Games', 'Music', 'Photography', 'Technology']), required=True)
 funding_goal = Field('funding_goal', 'decimal(19,2)', required=True)
 image = Field('image', 'upload', required=True)
-status = Field('status', requires=IS_IN_SET(['NotAvailable', 'OpenForPledges', 'Funded', 'NotFunded']), required=True)
+status = Field('status', requires=IS_IN_SET(['Not Available', 'Open For Pledges', 'Funded', 'Not Funded']), required=True)
 creation_date = Field('creation_date', 'date', required=True)
 user = Field('user', db.user, required=True)
 long_description = Field('long_description', 'text', required=True)
+# Bootable manager history description
+bm_description = Field('bm_description', 'text', required=True)
+
 
 # Table declaration
 db.define_table('bootable',
-                title, description, category, funding_goal, image, status, creation_date, username, long_description,
+                title, description, category, funding_goal, image, status, creation_date, user, long_description, bm_description,
                 format='%(title)s')
 
 ## Pledge table definition
@@ -109,7 +113,8 @@ user = Field('user', db.user, required=True)
 
 # Table Definition
 db.define_table('pledge',
-                value, bootable, user)
+                value, bootable, user,
+                format='%(user)s')
 
 ## Pledge Tier table definition
 ## To reiterate what is said in the specification, a pledge tier is a set of rewards that the user is to be rewarded
@@ -118,11 +123,12 @@ db.define_table('pledge',
 
 # Fields
 pledge_value = Field('pledge_value', 'decimal(19,2)', required=True)
-description = Field('description', 'string', required=True)
+description = Field('description', 'text', required=True)
 includes_lower = Field('includes_lower', 'boolean', default=False)
 bootable = Field('bootable', db.bootable, required=True)
 
 # Table declaration
 
 db.define_table('pledge_tier',
-                pledge_value, description, includes_lower, bootable)
+                pledge_value, description, includes_lower, bootable,
+                format='%(pledge_value)s')

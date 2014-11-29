@@ -95,11 +95,12 @@ user = Field('user', db.user, required=True)
 long_description = Field('long_description', 'text', required=True)
 # Bootable manager history description
 bm_description = Field('bm_description', 'text', required=True)
+funded_on = Field('funded_on', 'date', required=False)
 
 
 # Table declaration
 db.define_table('bootable',
-                title, description, category, funding_goal, image, status, creation_date, user, long_description, bm_description,
+                title, description, category, funding_goal, image, status, creation_date, user, long_description, bm_description, funded_on,
                 format='%(title)s')
 
 ## Pledge table definition

@@ -18,20 +18,8 @@ def index():
     return auth.wiki()
     """
     # response.flash = T("Welcome to web2py!")
-    if not session.counter:
-        session.counter = 1
-    else:
-        session.counter += 1
-    return dict(message="Potato from my potato", counter = session.counter)
 
-def first():
-    if request.vars.visitor_name:
-        session.visitor_name = request.vars.visitor_name
-        redirect(URL('second'))
-    return dict()
-
-def second():
-    return dict()
+    return dict(users=db().select(db.user.ALL))
 
 # def user():
 #     """

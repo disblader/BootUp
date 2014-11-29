@@ -5,5 +5,15 @@
 
 
 <!-- Recently created -->
-{{=db().select(db.user}}
+<ul>
+    {{for bootable in db().select(db.bootable.ALL, orderby=db.bootable.creation_date):}}
+    {{=LI(bootable.title + ' ' + bootable.creation_date.strftime('%d/%m/%y'))}}
+    {{pass}}
+</ul>
+
 <!-- Recently funded -->
+<ul>
+    {{for bootable in db().select(db.bootable.ALL, orderby=db.bootable.creation_date):}}
+    {{=LI(bootable.title + ' ' + bootable.creation_date.strftime('%d/%m/%y'))}}
+    {{pass}}
+</ul>

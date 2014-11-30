@@ -1,2 +1,8 @@
 {{extend 'layout.html'}}
 <!-- This will be the search results page -->
+
+{{if results:}}
+    {{for bootable in results:}}
+    {{=LI(bootable.title + ' ' + bootable.creation_date.strftime('%d/%m/%y'))}}
+    {{pass}}
+{{pass}}

@@ -30,6 +30,20 @@ response.menu += [(T('User Edit'), False, URL('user', 'edit'))]
 response.menu += [(T('Login'), False, URL('user', 'login'))]
 response.menu += [(T('Logout'), False, URL('user', 'logout'))]
 response.menu += [(T('Sign up'), False, URL('user', 'signup'))]
+response.menu += [(T('Search'), False, URL('default', 'search', vars={'search_term':'the'}))]
+
+# The button in the form below has a manually assigned margin of 5px as otherwise it seems to get pulled right next to
+# the select box, which is undesirable
+search_form = FORM(INPUT(_name='search_term', _type='text', _class='span3', _placeholder='Search by typing here...'),
+                            SELECT('All Categories', 'Art', 'Comics', 'Crafts', 'Fashion', 'Film', 'Games', 'Music', 'Photography', 'Technology', _class='span2', _name='search_category'),
+                            BUTTON('Search', _class='btn', _type='submit', _style='margin-left:5px'),
+                            _class="navbar-form pull-left");
+
+if search_form.process().accepted:
+    redirect(URL('default', 'search', vars = search_form.vars))
+
+response.search_form = search_form
+
 
 DEVELOPMENT_MENU = True
 

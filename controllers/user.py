@@ -12,7 +12,7 @@ def login():
     form = FORM(INPUT(_name='username', requires=IS_IN_DB(db, db.user.username, error_message='The user cannot be found; please try again')),
                 INPUT(_type='submit'))
 
-    if form.process().accepted:
+    if form.process(formname='login_form').accepted:
         log_user_in(form.vars.username)
         redirect(URL(request.vars.next_c, request.vars.next_f))
 
@@ -30,16 +30,21 @@ def logout():
     response.flash = session.logged_in_user
     redirect(URL('default', 'index'))
 
-# A straightforward form, generated based on the user table
-def signup():
-    user_form = SQLFORM(db.user)
+# This controller retrieves and passes on to the view a list of bootables that the user has pledged towards
+def my_pledges():
 
+    check_and_redirect()
+    username = session.logged_in_user
 
-    # if form.process().accepted:
-        # id = db.address.insert(**db.address._filter_fields(form.vars))
-        # form.vars.client=id
-        # id = db.credit_card.insert(**db.credit_card._filter_fields(form.vars))
-        # response.flash='Thanks for filling the form'
+    pledges = db(db.pledge.user == (db.user.username == username)).select(db.pledge.ALL);
 
-    # return dict(user_form=user_form, address_form=address_form, credit_card_form=credit_card_form, credit_card_address_form=credit_card_address_form)
-    return dict(user_form=user_form)
+    bootables = []
+
+    for pledge in pledges:
+        print(' ')
+        bootable = db.bootable(db.bootable.id == pledge.bootable.id)
+        print(bootable.title)
+        bootables.append(bootable)
+
+    print(bootables)
+    return dict(results=bootables)

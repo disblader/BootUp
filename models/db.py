@@ -62,12 +62,14 @@ user = Field('user', db.user, required=True)
 long_description = Field('long_description', 'text', required=True)
 # Bootable manager history description
 bm_description = Field('bm_description', 'text', required=True)
-funded_on = Field('funded_on', 'date', required=False)
-
+# The next field is not in the specification; it exists as a cache. This poses some synchronisation issues that would have
+# to be taken care of in a real-world application, however is beyond this assessment.
+# This value is to be updated every time a pledge is made.
+funded_so_far = Field('funded_so_far', 'decimal(19,2)')
 
 # Table declaration
 db.define_table('bootable',
-                title, description, category, funding_goal, image, status, creation_date, user, long_description, bm_description, funded_on,
+                title, description, category, funding_goal, image, status, creation_date, user, long_description, bm_description, funded_so_far,
                 format='%(title)s')
 
 ## Pledge table definition

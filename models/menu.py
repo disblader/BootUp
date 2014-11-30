@@ -39,7 +39,7 @@ search_form = FORM(INPUT(_name='search_term', _type='text', _class='span3', _pla
                             BUTTON('Search', _class='btn', _type='submit', _style='margin-left:5px'),
                             _class="navbar-form pull-left");
 
-if search_form.process().accepted:
+if search_form.process(formname='search_form').accepted:
     redirect(URL('default', 'search', vars = search_form.vars))
 
 response.search_form = search_form

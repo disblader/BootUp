@@ -1,0 +1,27 @@
+{{extend 'layout.html'}}
+
+<h1>Bootables You pledged</h1>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <td>Title</td>
+        <td>Your Pledge</td>
+        <td>Your Rewards</td>
+        <td>Total Pledged</td>
+        <td>Funding Goal</td>
+        <td>Current status</td>
+    </tr>
+    </thead>
+    <tbody>
+    {{for bootable in results:}}
+    <tr>
+        <td>{{=bootable.title}}</td>
+        <td>Your Pledge</td>
+        <td>Your Rewards</td>
+        <td>{{=bootable.funded_so_far}}</td>
+        <td>{{=bootable.funding_goal}}</td>
+        <td>{{=bootable.status}}</td>
+    </tr>
+    {{pass}}
+    </tbody>
+</table>

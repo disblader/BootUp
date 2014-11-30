@@ -13,11 +13,11 @@
     {{pass}}
 </ul>
 
-<!-- Recently funded TODO has to be changed to closest to funding; it will also involve deleting the funded_on field-->
-<h3>Recently Funded</h3>
+<!-- Recently funded -->
+<h3>Closest to funding</h3>
 <ul>
-    {{# 5 projects closest to their funding goal. Potentially a helper method in the model?}}
-    {{for bootable in db(db.bootable.status=='Funded').select(orderby=~db.bootable.funded_on, limitby=(0,5)):}}
-    {{=LI(bootable.title + ' ' + bootable.funded_on.strftime('%d/%m/%y'))}}
+    {{# 5 projects closest to their funding goal. }}
+    {{for bootable in closest_to_funding:}}
+    {{=LI(bootable.title + ' ' + str(bootable.funded_so_far) + '/' + str(bootable.funding_goal))}}
     {{pass}}
 </ul>

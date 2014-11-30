@@ -1,7 +1,9 @@
 
 # This is the controller for the homepage. Homepage requests do not take any input; hence no processing is required.
 def index():
-    return dict()
+    closest_to_funding = db(db.bootable.status == 'Open For Pledges').select(orderby=~db.bootable.funded_so_far, limitby=(0,5))
+
+    return dict(closest_to_funding = closest_to_funding)
 
 def search():
     # The dictionary that will be returned to the view
@@ -18,46 +20,16 @@ def search():
 
     if (search_term is not None) & (search_category is not None):
         # The following condition summarised would be something like
-        # (title like search term OR description like search term) AND category == search category
+        # (title like search term OR description like search term) AND category == search category AND status is not 'Not Available'
         results = db(((db.bootable.title.like('%' + search_term + '%')) | (db.bootable.description.like('%' + search_term + '%')))
-                     & (db.bootable.category == search_category)).select()
+                     & (db.bootable.category == search_category)
+                     & (db.bootable.status != 'Not Available')).select()
     elif search_term is not None:
-        results = db(db.bootable.title.like('%' + search_term + '%') | db.bootable.description.like('%' + search_term + '%')).select()
+        results = db((db.bootable.title.like('%' + search_term + '%') | db.bootable.description.like('%' + search_term + '%'))
+                    & (db.bootable.status != 'Not Available')).select()
     elif search_category is not None:
-        results = db(db.bootable.category == search_category).select()
+        results = db(db.bootable.category == search_category
+                     & (db.bootable.status != 'Not Available')).select()
 
 
     return dict(results=results)
-
-
-
-# @cache.action()
-# def download():
-#     """
-#     allows downloading of uploaded files
-#     http://..../[app]/default/download/[filename]
-#     """
-#     return response.download(request, db)
-#
-#
-# def call():
-#     """
-#     exposes services. for example:
-#     http://..../[app]/default/call/jsonrpc
-#     decorate with @services.jsonrpc the functions to expose
-#     supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv
-#     """
-#     return service()
-#
-#
-# @auth.requires_login()
-# def api():
-#     """
-#     this is example of API with access control
-#     WEB2PY provides Hypermedia API (Collection+JSON) Experimental
-#     """
-#     from gluon.contrib.hypermedia import Collection
-#     rules = {
-#         '<tablename>': {'GET':{},'POST':{},'PUT':{},'DELETE':{}},
-#         }
-#     return Collection(db).process(request,response,rules)

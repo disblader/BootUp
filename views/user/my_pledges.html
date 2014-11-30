@@ -1,6 +1,6 @@
 {{extend 'layout.html'}}
 
-<h1>Bootables You pledged</h1>
+<h1>Bootables You pledged towards</h1>
 <table class="table table-striped">
     <thead>
     <tr>
@@ -13,14 +13,14 @@
     </tr>
     </thead>
     <tbody>
-    {{for bootable in results:}}
+    {{for row in results:}}
     <tr>
-        <td>{{=bootable.title}}</td>
-        <td>Your Pledge</td>
-        <td>Your Rewards</td>
-        <td>{{=bootable.funded_so_far}}</td>
-        <td>{{=bootable.funding_goal}}</td>
-        <td>{{=bootable.status}}</td>
+        <td>{{=row['title']}}</td>
+        <td>{{=row['value']}}</td>
+        <td>{{=row['rewards']}}</td>
+        <td>{{=row['funded_so_far']}}</td>
+        <td>{{=row['funding_goal']}}</td>
+        <td>{{=row['status']}}</td>
     </tr>
     {{pass}}
     </tbody>

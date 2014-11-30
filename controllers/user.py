@@ -1,5 +1,6 @@
 # This is a controller for user actions (like logging in, checking their user profile, etc.)
 
+
 # This is the log-in action. It is a simplified log-in (no password, just username), as no security is to be implemented
 # for the purpose of this assessment
 def login():
@@ -13,10 +14,15 @@ def login():
                 INPUT(_type='submit'))
 
     if form.process(formname='login_form').accepted:
+        session.flash = 'Hello, ' + form.vars.username
         log_user_in(form.vars.username)
-        redirect(URL(request.vars.next_c, request.vars.next_f))
+        if (request.vars.next_c is not None) & (request.vars.next_f is not None):
+            redirect(URL(request.vars.next_c, request.vars.next_f))
+        else:
+            redirect(URL('default', 'index'))
 
     return dict(form=form)
+
 
 # This is the action of editing your own user data.
 # Requires the user to be logged in
@@ -24,27 +30,53 @@ def edit():
     check_and_redirect()
     return dict()
 
+
 # Pretty straightforward: logs the user out
 def logout():
     log_user_out()
     response.flash = session.logged_in_user
     redirect(URL('default', 'index'))
 
-# This controller retrieves and passes on to the view a list of bootables that the user has pledged towards
+
+# This controller retrieves and passes on to the view a list of objects that display information about
+# the pledges that the user has made to bootables.
 def my_pledges():
 
     check_and_redirect()
     username = session.logged_in_user
 
-    pledges = db(db.pledge.user == (db.user.username == username)).select(db.pledge.ALL);
+    user = db(db.user.username == username).select().first()
 
-    bootables = []
+    pledges = db(db.pledge.user == user).select(db.pledge.ALL);
+
+    display_objects = []
 
     for pledge in pledges:
-        print(' ')
-        bootable = db.bootable(db.bootable.id == pledge.bootable.id)
-        print(bootable.title)
-        bootables.append(bootable)
+        bootable = db(db.bootable.id == pledge.bootable.id).select().first()
 
-    print(bootables)
-    return dict(results=bootables)
+        pledge_tier = db((db.pledge_tier.bootable == bootable) & (db.pledge_tier.pledge_value <= pledge.value)).select(db.pledge_tier.ALL, orderby=~db.pledge_tier.pledge_value).first()
+
+        reward_string = pledge_tier.description
+
+        # This next loop recursively adds the descriptions of the rewards to the reward string for as long as it
+        # encounters pledge tiers that include lower value tiers, and as long as a lower value tier exists.
+
+        while (pledge_tier is not None) & (pledge_tier.includes_lower):
+            last_value = pledge_tier.pledge_value
+            pledge_tier = db((db.pledge_tier.bootable == bootable) & (db.pledge_tier.pledge_value < last_value)).select(db.pledge_tier.ALL, orderby=~db.pledge_tier.pledge_value)
+            if pledge_tier is not None:
+                pledge_tier = pledge_tier.first()
+                reward_string += '; ' + pledge_tier.description
+
+        display_object = {
+            'title':bootable.title,
+            'value':pledge.value,
+            'rewards':reward_string,
+            'funded_so_far':bootable.funded_so_far,
+            'funding_goal':bootable.funding_goal,
+            'status':bootable.status
+        }
+
+        display_objects.append(display_object)
+
+    return dict(results=display_objects)

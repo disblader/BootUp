@@ -30,6 +30,7 @@ response.menu += [(T('User Edit'), False, URL('user', 'edit'))]
 response.menu += [(T('Login'), False, URL('user', 'login'))]
 response.menu += [(T('Logout'), False, URL('user', 'logout'))]
 response.menu += [(T('Sign up'), False, URL('user', 'signup'))]
+response.menu += [(T('My Pledges'), False, URL('user', 'my_pledges'))]
 response.menu += [(T('Search'), False, URL('default', 'search', vars={'search_term':'the'}))]
 
 # The button in the form below has a manually assigned margin of 5px as otherwise it seems to get pulled right next to

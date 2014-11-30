@@ -24,7 +24,8 @@ number = Field('number', 'bigint', required=True)
 expiration = Field('expiration', 'date', required=True)
 # pid stands for personal identification code
 pid = Field('pid', 'integer', required=True)
-address = Field('address', db.address, required=True)
+# While address should be required, it is significantly easier to handle the sign-up process when it is not
+address = Field('address', db.address, required=False)
 
 # Table definition
 db.define_table('credit_card',
@@ -34,11 +35,12 @@ db.define_table('credit_card',
 ## User table definition
 
 # Fields
-username = Field('username', 'string', unique=True, required=True)
-real_name = Field('real_name', 'string', required=True)
+username = Field('username', 'string', unique=True, required=True, requires=IS_ALPHANUMERIC('Username must consist of letters and numbers only'))
+real_name = Field('real_name', 'string', required=True, requires=IS_ALPHANUMERIC('Your name must consist of letters and numbers only'))
 birthdate = Field('birthdate', 'date', required=True)
-address = Field('address', db.address, required=True)
-credit_card = Field('credit_card', db.credit_card, required=True)
+# The next two fields, while technically should be required, are made not to be to ease the creation of the user object
+address = Field('address', db.address, required=False)
+credit_card = Field('credit_card', db.credit_card, required=False)
 
 # Table declaration
 db.define_table('user',

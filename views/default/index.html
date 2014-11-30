@@ -3,6 +3,8 @@
 
 <!-- Expected task helper window thing yo -->
 
+<!-- TODO convert to MVP -->
+
 <!-- Recently created -->
 <h3>Recently Created</h3>
 <ul>
@@ -14,6 +16,7 @@
 <!-- Recently funded -->
 <h3>Recently Funded</h3>
 <ul>
+    {{# 5 projects closest to their funding goal. Potentially a helper method in the model?}}
     {{for bootable in db(db.bootable.status=='Funded').select(orderby=~db.bootable.funded_on, limitby=(0,5)):}}
     {{=LI(bootable.title + ' ' + bootable.funded_on.strftime('%d/%m/%y'))}}
     {{pass}}

@@ -1,2 +1,33 @@
 {{extend 'layout.html'}}
 <!-- This will be the BM dashboard page -->
+
+<h1>Bootable Manager Dashboard</h1>
+<h2>Your Bootables</h2>
+<!--TODO the thing described in the line after this one; also, document the thing too -->
+<p>Hover over the buttons in the 'Available Actions' column for short descriptions of what they do</p>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <td>Title</td>
+        <td>Total Pledged</td>
+        <td>Funding Goal</td>
+        <td>Current status</td>
+        <td>Available Actions</td>
+    </tr>
+    </thead>
+    <tbody>
+    {{for row in results:}}
+    <tr>
+        <td>{{=row['bootable'].title}}</td>
+        <td>{{=row['bootable'].funded_so_far}}</td>
+        <td>{{=row['bootable'].funding_goal}}</td>
+        <td>{{=row['bootable'].status}}</td>
+        <td>
+            {{for action in row['actions']:}}
+            {{=action}}
+            {{pass}}
+        </td>
+    </tr>
+    {{pass}}
+    </tbody>
+</table>

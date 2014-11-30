@@ -80,3 +80,69 @@ def my_pledges():
         display_objects.append(display_object)
 
     return dict(results=display_objects)
+
+
+# This control gathers up the information required for the BM dashboard. That is, it collects the information on the
+# BM's bootables, and generates a list of available actions to be performed on that bootable. Then it passes this
+# information to be displayed in the view
+def dashboard():
+
+    # The following three functions generate elements that take a certain action upon the given bootable.
+    # Used to ease the generation of the actions for the state machine
+    # There's a bit more about that below in this function
+    def delete_action(bootable):
+        return A('Delete', _class='btn', callback=URL('delete', vars={'id':bootable.id}))
+
+    def open_for_pledges_action(bootable):
+        return A('Open for Pledges', _class='btn', callback=URL('open', vars={'id':bootable.id}))
+
+    def close_action(bootable):
+        return A('Close', _class='btn', callback=URL('close', vars={'id':bootable.id}))
+
+    check_and_redirect()
+    username = session.logged_in_user
+
+    user = db(db.user.username == username).select().first()
+
+    bootables = db(db.bootable.user == user).select(db.bootable.ALL);
+
+    display_objects = []
+
+    for bootable in bootables:
+
+        # This next bit before the construction of the display_object executes part of the state machine of the bootable
+        # It is only a part of it because the transition 'Open For Pledges' -> 'Funded' is automatic
+        # For the diagram of the state machine, check the design document
+
+        if bootable.status == 'Not Available':
+            actions = [delete_action(bootable), open_for_pledges_action(bootable)]
+        elif bootable.status == 'Open For Pledges':
+            actions = [close_action(bootable)]
+        elif bootable.status == 'Funded':
+            actions = [delete_action(bootable)]
+        elif bootable.status == 'Not Funded':
+            actions = [delete_action(bootable), open_for_pledges_action(bootable)]
+
+        display_object = {
+            'bootable': bootable,
+            'actions': actions
+        }
+
+        display_objects.append(display_object)
+
+    return dict(results=display_objects)
+
+def delete():
+    # TODO do delete
+    # TODO response.flash deleted or something
+    return dict()
+
+def open():
+    # open the bootable for pledges
+    # response flash or something
+    return dict()
+
+def close():
+    # TODO do close
+    # response flash or something
+    return dict()

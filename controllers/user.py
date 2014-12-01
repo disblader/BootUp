@@ -138,6 +138,9 @@ def dashboard():
 # As the assessment is not evaluated for security, the action assumes that the action is legitimately invoked.
 #
 # This operation also produces feedback via the web2py 'flash'
+#
+# INPUT: the request has to have an attribute named 'id' which is the ID of the bootable on which the operation
+# will be performed
 def delete_bootable():
     bootable = db(db.bootable.id == request.vars.id).select(db.bootable.title).first()
     session.flash = 'Deleted the bootable \'' + bootable.title + '\''
@@ -150,6 +153,9 @@ def delete_bootable():
 # As the assessment is not evaluated for security, the action assumes that the action is legitimately invoked.
 #
 # This operation also produces feedback via the web2py 'flash'
+#
+# INPUT: the request has to have an attribute named 'id' which is the ID of the bootable on which the operation
+# will be performed
 def open_for_pledges():
     bootable = db(db.bootable.id == request.vars.id).select(db.bootable.title).first()
     session.flash = 'Opened the bootable \'' + bootable.title + '\' for pledges'
@@ -162,6 +168,9 @@ def open_for_pledges():
 # As the assessment is not evaluated for security, the action assumes that the action is legitimately invoked.
 #
 # This operation also produces feedback via the web2py 'flash'
+
+# INPUT: the request has to have an attribute named 'id' which is the ID of the bootable on which the operation
+# will be performed
 def close_bootable():
     bootable = db(db.bootable.id == request.vars.id).select(db.bootable.title).first()
     session.flash = 'Closed the bootable \'' + bootable.title + '\'. It is no longer available for pledging.'

@@ -3,12 +3,10 @@
 
 <!-- Expected task helper window thing yo -->
 
-<!-- TODO convert to MVP -->
-
 <!-- Recently created -->
 <h3>Recently Created</h3>
 <ul>
-    {{for bootable in db().select(db.bootable.ALL, orderby=~db.bootable.creation_date, limitby=(0,5)):}}
+    {{for bootable in recently_created:}}
     {{=LI(bootable.title + ' ' + bootable.creation_date.strftime('%d/%m/%y'))}}
     {{pass}}
 </ul>
@@ -16,7 +14,6 @@
 <!-- Recently funded -->
 <h3>Closest to funding</h3>
 <ul>
-    {{# 5 projects closest to their funding goal. }}
     {{for bootable in closest_to_funding:}}
     {{=LI(bootable.title + ' ' + str(bootable.funded_so_far) + '/' + str(bootable.funding_goal))}}
     {{pass}}

@@ -1,2 +1,60 @@
 {{extend 'layout.html'}}
 <!-- This page will display bootables-->
+
+<div class="page-header">
+    <h1>{{=bootable.title}}
+        <small>
+            {{=bootable.description}}
+        </small>
+    </h1>
+</div>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#image" data-toggle="tab">About the project</a></li>
+    <li class=""><a href="#pledge_tiers" data-toggle="tab">Rewards for Pledging</a></li>
+    <li class=""><a href="#pledges" data-toggle="tab">People who pledged</a></li>
+    <li class=""><a href="#funding_goal" data-toggle="tab">Funding Goal</a></li>
+    <li class=""><a href="#pledging_action" data-toggle="tab">Pledge yourself!</a></li>
+
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="image">
+        {{=IMG(_class='bootable-image img-rounded', _src=URL('show', args=bootable.image))}}
+        <div>{{=bootable.long_description}}</div>
+    </div>
+    <div class="tab-pane fade" id="pledge_tiers">
+        <p>If you pledge to funding this Bootable, you can get the following rewards depending on how much you pledge!</p>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>If you pledge...</th>
+                <th>You get...</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {{for pledge_tier in pledge_tiers:}}
+            <tr>
+                <td>{{=pledge_tier.pledge_value}}</td>
+                <td>
+                    {{=pledge_tier.description}}
+                    {{if pledge_tier.includes_lower:}}
+                    + the rewards from the row above!
+                    {{pass}}
+                </td>
+            </tr>
+            {{pass}}
+            </tbody>
+        </table>
+    </div>
+    <div class="tab-pane fade" id="pledges">
+        <div>pledges</div>
+    </div>
+    <div class="tab-pane fade" id="funding_goal">
+        <div>funding goal</div>
+    </div>
+    <div class="tab-pane fade" id="pledging_action">
+        <div>pledging action</div>
+    </div>
+</div>

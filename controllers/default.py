@@ -2,8 +2,8 @@
 # This is the controller for the homepage. Homepage requests do not take any input; hence no processing is required.
 def index():
     closest_to_funding = db(db.bootable.status == 'Open For Pledges').select(orderby=~db.bootable.funded_so_far, limitby=(0,5))
-
-    return dict(closest_to_funding = closest_to_funding)
+    recently_created = db().select(db.bootable.ALL, orderby=~db.bootable.creation_date, limitby=(0,5))
+    return dict(closest_to_funding = closest_to_funding, recently_created = recently_created)
 
 def search():
     # The dictionary that will be returned to the view

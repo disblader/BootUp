@@ -5,10 +5,10 @@
 # for the purpose of this assessment
 def login():
 
-    # If 'error' exists on the request arguments, then flash it
-    # This is used to display reasons why the user was redirected to the login page, if that is indeed how it got here
-    if request.vars.error:
-        response.flash = request.vars.error
+    # # If 'error' exists on the request arguments, then flash it
+    # # This is used to display reasons why the user was redirected to the login page, if that is indeed how it got here
+    # if request.vars.error:
+    #     response.flash = request.vars.error
 
     form = FORM(INPUT(_name='username', requires=IS_IN_DB(db, db.user.username, error_message='The user cannot be found; please try again')),
                 INPUT(_type='submit'))
@@ -33,6 +33,7 @@ def edit():
 
 # Pretty straightforward: logs the user out
 def logout():
+    session.flash = 'Hope to see you again soon!'
     log_user_out()
     response.flash = session.logged_in_user
     redirect(URL('default', 'index'))
@@ -91,13 +92,13 @@ def dashboard():
     # Used to ease the generation of the actions for the state machine
     # There's a bit more about that below in this function
     def delete_action(bootable):
-        return A('Delete', _class='btn', callback=URL('delete', vars={'id':bootable.id}))
+        return A('Delete', _class='btn', _href=URL('delete_bootable', vars={'id':bootable.id}))
 
     def open_for_pledges_action(bootable):
-        return A('Open for Pledges', _class='btn', callback=URL('open', vars={'id':bootable.id}))
+        return A('Open for Pledges', _class='btn', _href=URL('open_for_pledges', vars={'id':bootable.id}))
 
     def close_action(bootable):
-        return A('Close', _class='btn', callback=URL('close', vars={'id':bootable.id}))
+        return A('Close', _class='btn', _href=URL('close_bootable', vars={'id':bootable.id}))
 
     check_and_redirect()
     username = session.logged_in_user
@@ -132,17 +133,38 @@ def dashboard():
 
     return dict(results=display_objects)
 
-def delete():
-    # TODO do delete
-    # TODO response.flash deleted or something
+
+# This is the operation to delete a bootable
+# As the assessment is not evaluated for security, the action assumes that the action is legitimately invoked.
+#
+# This operation also produces feedback via the web2py 'flash'
+def delete_bootable():
+    bootable = db(db.bootable.id == request.vars.id).select(db.bootable.title).first()
+    session.flash = 'Deleted the bootable \'' + bootable.title + '\''
+    # db(db.bootable.id == request.vars.id).delete()
+    redirect(URL('dashboard'))
     return dict()
 
-def open():
-    # open the bootable for pledges
-    # response flash or something
+
+# This is the operation to open for pledges a bootable
+# As the assessment is not evaluated for security, the action assumes that the action is legitimately invoked.
+#
+# This operation also produces feedback via the web2py 'flash'
+def open_for_pledges():
+    bootable = db(db.bootable.id == request.vars.id).select(db.bootable.title).first()
+    session.flash = 'Opened the bootable \'' + bootable.title + '\' for pledges'
+    db(db.bootable.id == request.vars.id).update(status='Open For Pledges')
+    redirect(URL('dashboard'))
     return dict()
 
-def close():
-    # TODO do close
-    # response flash or something
+
+# This is the operation to 'close' a bootable
+# As the assessment is not evaluated for security, the action assumes that the action is legitimately invoked.
+#
+# This operation also produces feedback via the web2py 'flash'
+def close_bootable():
+    bootable = db(db.bootable.id == request.vars.id).select(db.bootable.title).first()
+    session.flash = 'Closed the bootable \'' + bootable.title + '\'. It is no longer available for pledging.'
+    db(db.bootable.id == request.vars.id).update(status='Not Funded')
+    redirect(URL('dashboard'))
     return dict()

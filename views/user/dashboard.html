@@ -1,6 +1,7 @@
 {{extend 'layout.html'}}
 <!-- This will be the BM dashboard page -->
 
+{{if results:}}
 <h1>Bootable Manager Dashboard</h1>
 <h2>Your Bootables</h2>
 <!--TODO the thing described in the line after this one; also, document the thing too -->
@@ -32,3 +33,6 @@
     {{pass}}
     </tbody>
 </table>
+{{else:}}
+<p>You don't seem to have created any Bootables! If you want to do that, click the link in the navbar at the top of the page.</p>
+{{pass}}

@@ -141,7 +141,7 @@ def dashboard():
 def delete_bootable():
     bootable = db(db.bootable.id == request.vars.id).select(db.bootable.title).first()
     session.flash = 'Deleted the bootable \'' + bootable.title + '\''
-    # db(db.bootable.id == request.vars.id).delete()
+    db(db.bootable.id == request.vars.id).delete()
     redirect(URL('dashboard'))
     return dict()
 

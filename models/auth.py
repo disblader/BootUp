@@ -6,7 +6,7 @@
 def check_and_redirect():
     if not session or not session.logged_in_user:
         session.flash = 'You must log in before you can do that'
-        redirect(URL('user', 'login', vars={'next_c':request.controller,'next_f':request.function}))
+        redirect(URL('user', 'login', vars={'next_c':request.controller,'next_f':request.function, 'vars':request.vars}))
 
 # Logs the user in (i.e. defines a session variable that is the username. The existence of it counts as the user being
 # 'logged in')

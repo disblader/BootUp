@@ -40,11 +40,67 @@ def view():
     bootable = db(db.bootable.id == request.vars.id).select().first()
     pledge_tiers = db(db.pledge_tier.bootable == bootable).select(db.pledge_tier.ALL, orderby=db.pledge_tier.pledge_value)
 
-    print(bootable.image)
+    # This is an array of objects that store the display information for the part of the page about the users that
+    # pledged towards this bootable
+    pledge_display_objects =[]
 
-    return dict(bootable=bootable, pledge_tiers=pledge_tiers)
+    pledges = db(db.pledge.bootable == bootable).select()
+
+    for pledge in pledges:
+
+        # that is a function found in the db.py model
+        reward_string = generate_rewards_string(pledge)
+
+        user = db(db.user == pledge.user).select(db.user.ALL).first()
+
+        display_object = {
+            'value':pledge.value,
+            'rewards':reward_string,
+            'username':user.username
+        }
+
+        pledge_display_objects.append(display_object)
+
+    return dict(bootable=bootable, pledge_tiers=pledge_tiers, pledge_display_objects=pledge_display_objects)
 
 
 # Returns the image for the bootable
 def show():
     return response.download(request,db)
+
+
+# This is the controller for the pledge page. What it does is quite straightforward: it displays the pledge tiers
+# available for the supplied bootable and lets the user enter the amount of money that the user wants to pledge to the
+# project
+#
+# This same controller also handles input from itself as well
+def pledge():
+    # This action is only available to logged in users
+    check_and_redirect()
+
+    bootable = db(db.bootable.id == request.vars.id).select(db.bootable.ALL).first()
+    user = db(db.user.username == session.logged_in_user).select(db.user.ALL).first()
+
+    # The following line checks if the invocation was in fact the form submission
+    if request.vars.value:
+
+        # inserts the new entry into the table of pledges
+        db.pledge.insert(value=request.vars.value, bootable=bootable, user=user)
+
+        # Updates the bootable's funded_so_far value
+        db(db.bootable.id == bootable.id).update(funded_so_far = (bootable.funded_so_far + request.vars.value))
+
+        bootable = db(db.bootable.id == bootable.id).select().first()
+        # If the bootable's funded_so_far is higher than the funding goal, the bootable becomes funded
+        if bootable.funded_so_far >= bootable.funding_goal:
+            db(db.bootable.id == bootable.id).update(status = 'Funded')
+
+        session.flash = 'You successfully pledged ' + \
+                        str(request.vars.value) + \
+                        ' towards \'' \
+                        + bootable.title + '\''
+        redirect(URL('bootable', 'view', vars={'id':bootable.id}))
+
+    pledge_tiers = db(db.pledge_tier.bootable == bootable).select(db.pledge_tier.ALL, orderby=db.pledge_tier.pledge_value)
+
+    return dict(pledge_tiers = pledge_tiers, bootable=bootable)

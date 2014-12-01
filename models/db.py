@@ -102,3 +102,31 @@ bootable = Field('bootable', db.bootable, required=True)
 db.define_table('pledge_tier',
                 pledge_value, description, includes_lower, bootable,
                 format='%(pledge_value)s')
+
+
+# The following function generates the string that will represent the collection of descriptions that the given
+# concrete pledge will generate
+#
+# E.g. if the given pledge is a pledge of value 85 on a bootable which has a
+# rewards tier at 65 that includes the lower reward, which would be the one at 45, which does not include the lower
+# reward, then the string generated will be concatenation of the reward of the 65 tier reward and the 45 tier reward.
+# If the concrete pledge will be 50, however, then the returned string would be just the description of the 45 tier,
+# as it does not include any other rewards.
+def generate_rewards_string(pledge):
+
+    bootable__for_this_pledge = db(db.bootable.id == pledge.bootable.id).select().first()
+    pledge_tier = db((db.pledge_tier.bootable == bootable__for_this_pledge) & (db.pledge_tier.pledge_value <= pledge.value)).select(db.pledge_tier.ALL, orderby=~db.pledge_tier.pledge_value).first()
+
+    reward_string = pledge_tier.description
+
+    # This next loop recursively adds the descriptions of the rewards to the reward string for as long as it
+    # encounters pledge tiers that include lower value tiers, and as long as a lower value tier exists.
+
+    while (pledge_tier is not None) & (pledge_tier.includes_lower):
+        last_value = pledge_tier.pledge_value
+        pledge_tier = db((db.pledge_tier.bootable == bootable__for_this_pledge) & (db.pledge_tier.pledge_value < last_value)).select(db.pledge_tier.ALL, orderby=~db.pledge_tier.pledge_value)
+        if pledge_tier is not None:
+            pledge_tier = pledge_tier.first()
+            reward_string += '; ' + pledge_tier.description
+
+    return reward_string

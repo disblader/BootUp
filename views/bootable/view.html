@@ -9,19 +9,52 @@
     </h1>
 </div>
 
+    {{funding_progress=(bootable.funded_so_far/bootable.funding_goal)*100}}
+    {{ # If the funding progress is less than 1%, then we set it to 1% as to display the bar (even if only a little)
+    if funding_progress < 1:
+        funding_progress=1
+    pass
+    }}
+
+    {{# If the project is funded, we display a green bar that is full, the text saying it's funded and }}
+    {{if bootable.status=='Funded':}}
+        <h2>This project is funded!</h2>
+        <div class="progress">
+            <div class="bar bar-success" style="width: 100%;"></div>
+        </div>
+    {{elif bootable.status=='Not Funded':}}
+        <h2>This project was closed without getting funded.</h2>
+        <div class="progress">
+            <div class="bar bar-danger" style="width: {{=funding_progress}}%;"></div>
+        </div>
+    {{else:}}
+        <h2>Current Progress: {{=bootable.funded_so_far}} out of {{=bootable.funding_goal}} wanted</h2>
+        <div class="progress">
+            <div class="bar bar-error" style="width: {{=funding_progress}}%;"></div>
+        </div>
+    {{pass}}
+
+
 <ul class="nav nav-tabs">
     <li class="active"><a href="#image" data-toggle="tab">About the project</a></li>
     <li class=""><a href="#pledge_tiers" data-toggle="tab">Rewards for Pledging</a></li>
     <li class=""><a href="#pledges" data-toggle="tab">People who pledged</a></li>
-    <li class=""><a href="#funding_goal" data-toggle="tab">Funding Goal</a></li>
-    <li class=""><a href="#pledging_action" data-toggle="tab">Pledge yourself!</a></li>
-
+    {{if bootable.status=='Open For Pledges':}}
+    <li class=""><a href="{{=URL('bootable','pledge', vars={'id':bootable.id})}}">Pledge yourself!</a></li>
+    <!-- TODO hide the pledge link if the user has already pledged. Also, indicate pledge status on the page-->
+    {{pass}}
 </ul>
 
 <div class="tab-content">
     <div class="tab-pane fade active in" id="image">
-        {{=IMG(_class='bootable-image img-rounded', _src=URL('show', args=bootable.image))}}
-        <div>{{=bootable.long_description}}</div>
+        <div class="text-center">{{=IMG(_class='bootable-image img-rounded', _src=URL('show', args=bootable.image))}}</div>
+        <div>
+            {{# This next bit simply splits the description field into paragraphs and renders it as it's own separate p element}}
+            {{for paragraph in bootable.long_description.split('\n'):}}
+            {{=P(paragraph)}}
+            {{pass}}
+        </div>
+
     </div>
     <div class="tab-pane fade" id="pledge_tiers">
         <p>If you pledge to funding this Bootable, you can get the following rewards depending on how much you pledge!</p>
@@ -49,12 +82,24 @@
         </table>
     </div>
     <div class="tab-pane fade" id="pledges">
-        <div>pledges</div>
-    </div>
-    <div class="tab-pane fade" id="funding_goal">
-        <div>funding goal</div>
-    </div>
-    <div class="tab-pane fade" id="pledging_action">
-        <div>pledging action</div>
+        <p>People who have pledged towards this project:</p>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Their Username</th>
+                <th>Their Pledge</th>
+                <th>Their Rewards</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{for pledge in pledge_display_objects:}}
+            <tr>
+                <td>{{=pledge['username']}}</td>
+                <td>{{=pledge['value']}}</td>
+                <td>{{=pledge['rewards']}}</td>
+            </tr>
+            {{pass}}
+            </tbody>
+        </table>
     </div>
 </div>

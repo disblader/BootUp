@@ -17,7 +17,7 @@ def login():
         session.flash = 'Hello, ' + form.vars.username
         log_user_in(form.vars.username)
         if (request.vars.next_c is not None) & (request.vars.next_f is not None):
-            redirect(URL(request.vars.next_c, request.vars.next_f))
+            redirect(URL(request.vars.next_c, request.vars.next_f, vars=request.vars))
         else:
             redirect(URL('default', 'index'))
 
@@ -55,19 +55,8 @@ def my_pledges():
     for pledge in pledges:
         bootable = db(db.bootable.id == pledge.bootable.id).select().first()
 
-        pledge_tier = db((db.pledge_tier.bootable == bootable) & (db.pledge_tier.pledge_value <= pledge.value)).select(db.pledge_tier.ALL, orderby=~db.pledge_tier.pledge_value).first()
-
-        reward_string = pledge_tier.description
-
-        # This next loop recursively adds the descriptions of the rewards to the reward string for as long as it
-        # encounters pledge tiers that include lower value tiers, and as long as a lower value tier exists.
-
-        while (pledge_tier is not None) & (pledge_tier.includes_lower):
-            last_value = pledge_tier.pledge_value
-            pledge_tier = db((db.pledge_tier.bootable == bootable) & (db.pledge_tier.pledge_value < last_value)).select(db.pledge_tier.ALL, orderby=~db.pledge_tier.pledge_value)
-            if pledge_tier is not None:
-                pledge_tier = pledge_tier.first()
-                reward_string += '; ' + pledge_tier.description
+        # that is a function found in the db.py model
+        reward_string = generate_rewards_string(pledge)
 
         display_object = {
             'title':bootable.title,

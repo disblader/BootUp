@@ -3,18 +3,51 @@
 
 <!-- Expected task helper window thing yo -->
 
-<!-- Recently created -->
-<h3>Recently Created</h3>
-<ul>
-    {{for bootable in recently_created:}}
-    {{=LI(bootable.title + ' ' + bootable.creation_date.strftime('%d/%m/%y'))}}
-    {{pass}}
-</ul>
+<div class="row">
+    <!-- Recently created -->
+    <div class="span6">
+        <h3>Recently Created Bootables!</h3>
 
-<!-- Recently funded -->
-<h3>Closest to funding</h3>
-<ul>
-    {{for bootable in closest_to_funding:}}
-    {{=LI(bootable.title + ' ' + str(bootable.funded_so_far) + '/' + str(bootable.funding_goal))}}
-    {{pass}}
-</ul>
+        {{for bootable in recently_created:}}
+
+        <div class="media">
+
+            <a class="pull-left" href="{{=URL('bootable', 'view', vars={'id':bootable.id})}}">
+                <img height="64" width="64" class="media-object" src="{{=URL('bootable', 'show', args=bootable.image)}}">
+            </a>
+
+            <div class="media-body">
+                <a href="{{=URL('bootable', 'view', vars={'id':bootable.id})}}">
+                    <h4 class="media-heading">{{=bootable.title}}</h4>
+                </a>
+                <p>{{=bootable.description}}</p>
+            </div>
+
+        </div>
+
+        {{pass}}
+    </div>
+
+    <!-- Recently funded -->
+    <div class="span6">
+        <h3>Closest to funding</h3>
+
+        {{for bootable in closest_to_funding:}}
+        <div class="media">
+
+            <a class="pull-left" href="{{=URL('bootable', 'view', vars={'id':bootable.id})}}">
+                <img height="64" width="64" class="media-object" src="{{=URL('bootable', 'show', args=bootable.image)}}">
+            </a>
+
+            <div class="media-body">
+                <a href="{{=URL('bootable', 'view', vars={'id':bootable.id})}}">
+                    <h4 class="media-heading">{{=bootable.title}}</h4>
+                </a>
+                <p>{{=bootable.description}}</p>
+                <p>{{=bootable.funded_so_far}} GBP out of {{=bootable.funding_goal}} GBP funded already!</p>
+            </div>
+
+        </div>
+        {{pass}}
+    </div>
+</div>

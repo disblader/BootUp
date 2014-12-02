@@ -1,7 +1,6 @@
 
 if not request.env.web2py_runtime_gae:
     db = DAL('sqlite://storage.sqlite')
-
 ## Address table definition
 
 # Fields
@@ -25,7 +24,7 @@ expiration = Field('expiration', 'date', required=True)
 # pid stands for personal identification code
 pid = Field('pid', 'integer', required=True)
 # While address should be required, it is significantly easier to handle the sign-up process when it is not
-address = Field('address', db.address, required=False)
+address = Field('address', db.address, required=False, readable = False, writable = False)
 
 # Table definition
 db.define_table('credit_card',
@@ -39,8 +38,8 @@ username = Field('username', 'string', unique=True, required=True, requires=IS_A
 real_name = Field('real_name', 'string', required=True, requires=IS_ALPHANUMERIC('Your name must consist of letters and numbers only'))
 birthdate = Field('birthdate', 'date', required=True)
 # The next two fields, while technically should be required, are made not to be to ease the creation of the user object
-address = Field('address', db.address, required=False)
-credit_card = Field('credit_card', db.credit_card, required=False)
+address = Field('address', db.address, required=False, readable = False, writable = False)
+credit_card = Field('credit_card', db.credit_card, required=False, readable = False, writable = False)
 
 # Table declaration
 db.define_table('user',
@@ -56,16 +55,16 @@ description = Field('description', 'string', length=120, required=True)
 category = Field('category', 'string', requires=IS_IN_SET(['Art', 'Comics', 'Crafts', 'Fashion', 'Film', 'Games', 'Music', 'Photography', 'Technology']), required=True)
 funding_goal = Field('funding_goal', 'decimal(19,2)', required=True)
 image = Field('image', 'upload', required=True)
-status = Field('status', requires=IS_IN_SET(['Not Available', 'Open For Pledges', 'Funded', 'Not Funded']), required=True)
-creation_date = Field('creation_date', 'date', required=True)
-user = Field('user', db.user, required=True)
+status = Field('status', requires=IS_IN_SET(['Not Available', 'Open For Pledges', 'Funded', 'Not Funded']), required=True, readable = False, writable = False)
+creation_date = Field('creation_date', 'date', required=True, readable = False, writable = False)
+user = Field('user', db.user, required=True, readable = False, writable = False)
 long_description = Field('long_description', 'text', required=True)
 # Bootable manager history description
-bm_description = Field('bm_description', 'text', required=True)
+bm_description = Field('bm_description', 'text', required=True, label="Description about yourself as a project creator")
 # The next field is not in the specification; it exists as a cache. This poses some synchronisation issues that would have
 # to be taken care of in a real-world application, however is beyond this assessment.
 # This value is to be updated every time a pledge is made.
-funded_so_far = Field('funded_so_far', 'decimal(19,2)')
+funded_so_far = Field('funded_so_far', 'decimal(19,2)', readable = False, writable = False, default=0)
 
 # Table declaration
 db.define_table('bootable',
@@ -77,9 +76,9 @@ db.define_table('bootable',
 ## bootable, as opposed to a 'pledge tier', which is an entity defining rewards for a certain amount of money pledged
 
 # Fields
-value = Field('value', 'decimal(19,2)', required=True)
-bootable = Field('bootable', db.bootable, required=True)
-user = Field('user', db.user, required=True)
+value = Field('value', 'decimal(19,2)', label="Your pledge", required=True)
+bootable = Field('bootable', db.bootable, required=True, readable = False, writable = False)
+user = Field('user', db.user, required=True, readable = False, writable = False)
 
 # Table Definition
 db.define_table('pledge',
@@ -95,7 +94,7 @@ db.define_table('pledge',
 pledge_value = Field('pledge_value', 'decimal(19,2)', required=True)
 description = Field('description', 'text', required=True)
 includes_lower = Field('includes_lower', 'boolean', default=False)
-bootable = Field('bootable', db.bootable, required=True)
+bootable = Field('bootable', db.bootable, required=True, readable = False, writable = False)
 
 # Table declaration
 

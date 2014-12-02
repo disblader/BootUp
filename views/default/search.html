@@ -3,6 +3,23 @@
 
 {{if results:}}
     {{for bootable in results:}}
-    {{=LI(bootable.title + ' ' + bootable.creation_date.strftime('%d/%m/%y'))}}
+
+        <div class="media">
+
+            <a class="pull-left" href="{{=URL('bootable', 'view', vars={'id':bootable.id})}}">
+                <img height="64" width="64" class="media-object" src="{{=URL('bootable', 'show', args=bootable.image)}}">
+            </a>
+
+            <div class="media-body">
+                <a href="{{=URL('bootable', 'view', vars={'id':bootable.id})}}">
+                    <h4 class="media-heading">{{=bootable.title}}</h4>
+                </a>
+                <p>{{=bootable.description}}</p>
+            </div>
+
+        </div>
+
     {{pass}}
+{{else:}}
+<p>No Bootables were found for your search criteria. Typo, maybe?</p>
 {{pass}}

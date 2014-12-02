@@ -29,11 +29,15 @@ response.menu = [
 # TODO organise the menu better
 
 response.menu += [(T('User Edit'), False, URL('user', 'edit'))]
-response.menu += [(T('Login'), False, URL('user', 'login'))]
-response.menu += [(T('Logout'), False, URL('user', 'logout'))]
-response.menu += [(T('Sign up'), False, URL('user', 'signup'))]
-response.menu += [(T('My Pledges'), False, URL('user', 'my_pledges'))]
-response.menu += [(T('Dashboard'), False, URL('user', 'dashboard'))]
+
+if session.logged_in_user:
+    response.menu += [(T('Logout'), False, URL('user', 'logout'))]
+    response.menu += [(T('My Pledges'), False, URL('user', 'my_pledges'))]
+    response.menu += [(T('Dashboard'), False, URL('user', 'dashboard'))]
+else:
+    response.menu += [(T('Login'), False, URL('user', 'login'))]
+    response.menu += [(T('Sign up'), False, URL('user', 'signup'))]
+
 response.menu += [(T('Create a Bootable'), False, URL('bootable', 'create'))]
 
 # The button in the form below has a manually assigned margin of 5px as otherwise it seems to get pulled right next to

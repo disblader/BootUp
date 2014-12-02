@@ -2,13 +2,9 @@
 <!-- This page will handle bootable creation -->
 
 {{extend 'layout.html'}}
-<h2>Input form</h2>
-<form enctype="multipart/form-data" action="{{=URL()}}" method="post">
-    Your pledge
-    <input name="value" />
-    <input type="submit" />
-    <input type="hidden" name="id" value="{{=bootable.id}}"/>
-</form>
+<h2>Pledge towards '{{=bootable.title}}'</h2>
+
+{{=form}}
 
 <table class="table table-striped">
     <thead>
@@ -21,7 +17,7 @@
     <tbody>
     {{for pledge_tier in pledge_tiers:}}
     <tr>
-        <td>{{=pledge_tier.pledge_value}}</td>
+        <td>{{=pledge_tier.pledge_value}} GBP</td>
         <td>
             {{=pledge_tier.description}}
             {{if pledge_tier.includes_lower:}}

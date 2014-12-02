@@ -16,19 +16,32 @@
     pass
     }}
 
-    {{# If the project is funded, we display a green bar that is full, the text saying it's funded and }}
+    {{# Depending on the bootable's status, we generate a header}}
     {{if bootable.status=='Funded':}}
         <h2>This project is funded!</h2>
+    {{elif bootable.status=='Not Funded':}}
+        <h2>This project was closed without getting funded.</h2>
+    {{else:}}
+        <h2>Current Progress: {{=bootable.funded_so_far}} GBP out of {{=bootable.funding_goal}} GBP wanted</h2>
+    {{pass}}
+
+    {{# if the current user has pledged towards this project, we display that here }}
+    {{if (current_user is not None) & (current_user_pledge is not None):}}
+    <div class="alert alert-success">
+        You have pledged {{=current_user_pledge.value}} GBP towards this project.
+    </div>
+    {{pass}}
+
+    {{# depending on bootable's status, we generate a progress bar}}
+    {{if bootable.status=='Funded':}}
         <div class="progress">
             <div class="bar bar-success" style="width: 100%;"></div>
         </div>
     {{elif bootable.status=='Not Funded':}}
-        <h2>This project was closed without getting funded.</h2>
         <div class="progress">
             <div class="bar bar-danger" style="width: {{=funding_progress}}%;"></div>
         </div>
     {{else:}}
-        <h2>Current Progress: {{=bootable.funded_so_far}} out of {{=bootable.funding_goal}} wanted</h2>
         <div class="progress">
             <div class="bar bar-error" style="width: {{=funding_progress}}%;"></div>
         </div>
@@ -39,21 +52,30 @@
     <li class="active"><a href="#image" data-toggle="tab">About the project</a></li>
     <li class=""><a href="#pledge_tiers" data-toggle="tab">Rewards for Pledging</a></li>
     <li class=""><a href="#pledges" data-toggle="tab">People who pledged</a></li>
-    {{if bootable.status=='Open For Pledges':}}
+    {{
+    # The following link is shown if:
+    # 1) The project is in the state 'Open For Pledges', as per the specification
+    # AND
+    # 2) The user is logged in and has not pledged towards the project yet OR the user is not logged in
+    }}
+    {{if (bootable.status=='Open For Pledges') & ((current_user is None) | ((current_user_pledge is None) & (current_user is not None))):}}
     <li class=""><a href="{{=URL('bootable','pledge', vars={'id':bootable.id})}}">Pledge yourself!</a></li>
-    <!-- TODO hide the pledge link if the user has already pledged. Also, indicate pledge status on the page-->
     {{pass}}
 </ul>
 
 <div class="tab-content">
     <div class="tab-pane fade active in" id="image">
         <div class="text-center">{{=IMG(_class='bootable-image img-rounded', _src=URL('show', args=bootable.image))}}</div>
-        <div>
+
+        <h4>Description</h4>
             {{# This next bit simply splits the description field into paragraphs and renders it as it's own separate p element}}
             {{for paragraph in bootable.long_description.split('\n'):}}
             {{=P(paragraph)}}
             {{pass}}
-        </div>
+        <h4>About the author</h4>
+            {{for paragraph in bootable.bm_description.split('\n'):}}
+            {{=P(paragraph)}}
+            {{pass}}
 
     </div>
     <div class="tab-pane fade" id="pledge_tiers">
@@ -69,7 +91,7 @@
             <tbody>
             {{for pledge_tier in pledge_tiers:}}
             <tr>
-                <td>{{=pledge_tier.pledge_value}}</td>
+                <td>{{=pledge_tier.pledge_value}} GBP</td>
                 <td>
                     {{=pledge_tier.description}}
                     {{if pledge_tier.includes_lower:}}
@@ -95,7 +117,7 @@
             {{for pledge in pledge_display_objects:}}
             <tr>
                 <td>{{=pledge['username']}}</td>
-                <td>{{=pledge['value']}}</td>
+                <td>{{=pledge['value']}} GBP</td>
                 <td>{{=pledge['rewards']}}</td>
             </tr>
             {{pass}}

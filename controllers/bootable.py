@@ -46,22 +46,35 @@ def view():
 
     pledges = db(db.pledge.bootable == bootable).select()
 
-    for pledge in pledges:
+    current_user = None
+    current_user_pledge = None
+
+    if session.logged_in_user:
+        current_user = db(db.user.username == session.logged_in_user).select().first()
+
+    for a_pledge in pledges:
+
+        if (current_user is not None) & (a_pledge.user.id == current_user.id):
+            current_user_pledge = a_pledge
 
         # that is a function found in the db.py model
-        reward_string = generate_rewards_string(pledge)
+        reward_string = generate_rewards_string(a_pledge)
 
-        user = db(db.user == pledge.user).select(db.user.ALL).first()
+        user = db(db.user.id == a_pledge.user.id).select(db.user.ALL).first()
 
         display_object = {
-            'value':pledge.value,
+            'value':a_pledge.value,
             'rewards':reward_string,
             'username':user.username
         }
 
         pledge_display_objects.append(display_object)
 
-    return dict(bootable=bootable, pledge_tiers=pledge_tiers, pledge_display_objects=pledge_display_objects)
+    return dict(bootable=bootable,
+                pledge_tiers=pledge_tiers,
+                pledge_display_objects=pledge_display_objects,
+                current_user_pledge=current_user_pledge,
+                current_user=current_user)
 
 
 # Returns the image for the bootable
@@ -80,6 +93,18 @@ def pledge():
 
     bootable = db(db.bootable.id == request.vars.id).select(db.bootable.ALL).first()
     user = db(db.user.username == session.logged_in_user).select(db.user.ALL).first()
+
+    # form = SQLFORM.factory(
+    #             Field('value', 'decimal(19,2)', label="Value of your pledge") requires=IS_NOT_EMPTY()),
+    #             )
+
+    form = SQLFORM.factory(db.pledge,
+                   submit_button='Make this pledge!')
+
+    if form.validate():
+        print(form.vars)
+
+    # <input type="hidden" name="id" value="{{=bootable.id}}"/>
 
     # The following line checks if the invocation was in fact the form submission
     if request.vars.value:
@@ -103,4 +128,4 @@ def pledge():
 
     pledge_tiers = db(db.pledge_tier.bootable == bootable).select(db.pledge_tier.ALL, orderby=db.pledge_tier.pledge_value)
 
-    return dict(pledge_tiers = pledge_tiers, bootable=bootable)
+    return dict(pledge_tiers = pledge_tiers, bootable=bootable, form=form)

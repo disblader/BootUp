@@ -80,16 +80,41 @@
                 <span class="icon-bar"></span>
             </button>
             {{=response.logo or ''}}
-            <ul id="navbar" class="nav pull-right">{{='auth' in globals() and auth.navbar(mode="dropdown") or ''}}</ul>
+
+            <div class="{{='nav-collapse' if is_mobile else 'nav'}} pull-left">
+                <ul class="nav">
+                    <li>{{=A('Home', _href=URL('default', 'index'))}}</li>
+                </ul>
+            </div>
+
             {{=search_form}}
+
             <div class="{{='nav-collapse' if is_mobile else 'nav'}} pull-right">
-                {{if session.logged_in_user:}}
-                <p class="navbar-text">Hey there, {{=session.logged_in_user}}</p>
+
+                {{class_of_nav=None}}
+                {{if is_mobile:}}
+                    {{class_of_nav='mobile-menu nav'}}
+                {{else:}}
+                    {{class_of_nav='nav'}}
                 {{pass}}
 
-                {{if response.menu:}}
-                {{=MENU(response.menu, _class='mobile-menu nav' if is_mobile else 'nav',mobile=is_mobile,li_class='dropdown',ul_class='dropdown-menu')}}
-                {{pass}}
+                <ul class="{{=class_of_nav}}">
+                    {{if session.logged_in_user:}}
+                        <li><p class="navbar-text">Hey there, {{=session.logged_in_user}}</p></li>
+                    {{pass}}
+                    {{if session.logged_in_user:}}
+                        <li>{{=A('My Pledges', _href=URL('user', 'my_pledges'))}}</li>
+                        <li>{{=A('My Dashboard', _href=URL('user', 'dashboard'))}}</li>
+                        <li>{{=A('User Edit', _href=URL('user', 'edit'))}}</li>
+                        <li>{{=A('Logout', _href=URL('user', 'logout'))}}</li>
+                    {{else:}}
+                        <li>{{=A('Login', _href=URL('user', 'login'))}}</li>
+                        <li>{{=A('Sign up', _href=URL('user', 'signup'))}}</li>
+                    {{pass}}
+
+                    <li>{{=A('Create a Bootable!', _href=URL('bootable', 'create'))}}</li>
+                </ul>
+
             </div><!--/.nav-collapse -->
         </div>
     </div>

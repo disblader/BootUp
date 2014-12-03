@@ -15,7 +15,7 @@
     <tbody>
     {{for row in results:}}
     <tr>
-        <td>{{=row['title']}}</td>
+        <td><a href="{{=URL('bootable', 'view', vars={'id':row['id']})}}">{{=row['title']}}</a></td>
         <td>{{=row['value']}}</td>
         <td>{{=row['rewards']}}</td>
         <td>{{=row['funded_so_far']}}</td>

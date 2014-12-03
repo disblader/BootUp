@@ -50,8 +50,8 @@ db.define_table('user',
 
 # Fields
 # All of the properties are required in order to create this object
-title = Field('title', 'string', required=True)
-description = Field('description', 'string', length=120, required=True)
+title = Field('title', 'string', required=True, label="Bootable Title")
+description = Field('description', 'string', length=120, required=True, label="Short Description (up to 120 characters)")
 category = Field('category', 'string', requires=IS_IN_SET(['Art', 'Comics', 'Crafts', 'Fashion', 'Film', 'Games', 'Music', 'Photography', 'Technology']), required=True)
 funding_goal = Field('funding_goal', 'decimal(19,2)', required=True)
 image = Field('image', 'upload', required=True)
@@ -76,7 +76,7 @@ db.define_table('bootable',
 ## bootable, as opposed to a 'pledge tier', which is an entity defining rewards for a certain amount of money pledged
 
 # Fields
-value = Field('value', 'decimal(19,2)', label="Your pledge", required=True)
+value = Field('value', 'decimal(19,2)', label="Your pledge", required=True, requires=IS_NOT_EMPTY())
 bootable = Field('bootable', db.bootable, required=True, readable = False, writable = False)
 user = Field('user', db.user, required=True, readable = False, writable = False)
 

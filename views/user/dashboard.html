@@ -20,7 +20,7 @@
     <tbody>
     {{for row in results:}}
     <tr>
-        <td>{{=row['bootable'].title}}</td>
+        <td><a href="{{=URL('bootable', 'view', vars={'id':row['bootable'].id})}}">{{=row['bootable'].title}}</a></td>
         <td>{{=row['bootable'].funded_so_far}}</td>
         <td>{{=row['bootable'].funding_goal}}</td>
         <td>{{=row['bootable'].status}}</td>

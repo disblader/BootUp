@@ -21,6 +21,8 @@ def login():
         else:
             redirect(URL('default', 'index'))
 
+            # TODO
+
     return dict(form=form)
 
 
@@ -48,7 +50,7 @@ def my_pledges():
 
     user = db(db.user.username == username).select().first()
 
-    pledges = db(db.pledge.user == user).select(db.pledge.ALL);
+    pledges = db(db.pledge.user == user).select(db.pledge.ALL)
 
     display_objects = []
 
@@ -59,6 +61,7 @@ def my_pledges():
         reward_string = generate_rewards_string(pledge)
 
         display_object = {
+            'id':bootable.id,
             'title':bootable.title,
             'value':pledge.value,
             'rewards':reward_string,
@@ -130,9 +133,12 @@ def dashboard():
 #
 # INPUT: the request has to have an attribute named 'id' which is the ID of the bootable on which the operation
 # will be performed
+# TODO Test delete stuff
 def delete_bootable():
     bootable = db(db.bootable.id == request.vars.id).select(db.bootable.title).first()
     session.flash = 'Deleted the bootable \'' + bootable.title + '\''
+    db(db.pledge.bootable.id == request.vars.id).delete()
+    db(db.pledge_tier.bootable.id == request.vars.id).delete()
     db(db.bootable.id == request.vars.id).delete()
     redirect(URL('dashboard'))
     return dict()

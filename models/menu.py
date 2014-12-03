@@ -22,18 +22,17 @@ response.google_analytics_id = None
 ## this is the main application menu add/remove items as required
 #########################################################################
 
+
+
 response.menu = [
     (T('Home'), False, URL('default', 'index'), [])
 ]
-
-# TODO organise the menu better
-
-response.menu += [(T('User Edit'), False, URL('user', 'edit'))]
 
 if session.logged_in_user:
     response.menu += [(T('Logout'), False, URL('user', 'logout'))]
     response.menu += [(T('My Pledges'), False, URL('user', 'my_pledges'))]
     response.menu += [(T('Dashboard'), False, URL('user', 'dashboard'))]
+    response.menu += [(T('User Edit'), False, URL('user', 'edit'))]
 else:
     response.menu += [(T('Login'), False, URL('user', 'login'))]
     response.menu += [(T('Sign up'), False, URL('user', 'signup'))]

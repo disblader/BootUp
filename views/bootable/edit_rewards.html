@@ -1,0 +1,47 @@
+{{extend 'layout.html'}}
+<!-- This page will handle bootable creation -->
+
+<h2>Edit Rewards</h2>
+
+{{# If 'new' exists, we display a message}}
+{{if request.vars.new:}}
+<!-- TODO put this into a modal and call it if new-->
+<p>You have successfully created your bootable!</p>
+<p>It is now in a state 'Not Available'.</p>
+<p>That means no one can else but you can access it, so you can make changes to it until you think it is ready to
+be published.</p>
+<p>When you think it is ready for the world, visit your Dashboard (via a link at the top right of the page, on the navbar)
+and next to this bootable, in the action column press 'Open for Pledges'</p>
+<p>Before you do that, however you should create some rewards for people who will pledge towards funding your project.</p>
+<p>You can do that using the controls below.</p>
+<p>Your changes are saved with each submit, so once you're done, you can just go to your dashboard and open this project for pledges!</p>
+{{pass}}
+
+{{if not pledge_tier:}}
+<h3>New Rewards</h3>
+{{else:}}
+<h3>Edit rewards for {{=pledge_tier.pledge_value}} GBP reward tier</h3>
+{{pass}}
+{{=form}}
+
+<!-- TODO Existing rewards table -->
+{{if all_tiers:}}
+<table>
+    <thead>
+    <tr>
+        <th>Reward value</th>
+        <th>Reward description</th>
+        <th>Includes previous?</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{for pledge_tier in all_tiers:}}
+    <tr>
+        <td>{{=pledge_tier.pledge_value}}</td>
+        <td>{{=pledge_tier.description}}</td>
+        <td>{{='Yes' if pledge_tier.includes_lower else 'No'}}</td>
+    </tr>
+    {{pass}}
+    </tbody>
+</table>
+{{pass}}

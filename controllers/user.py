@@ -1,4 +1,44 @@
 # This is a controller for user actions (like logging in, checking their user profile, etc.)
+import copy
+
+
+# This page creates a new user, or updates an existing user based on whether a user is logged in.
+# If a user is logged in, then it automatically goes to editing mode.
+# Otherwise goes to signup mode.
+def signup_or_edit():
+
+    if session.logged_in_user:
+        # Edit form
+        # form = SQLFORM(db.user, db.credit_card, db.address, )
+        print(' ')
+    else:
+
+        # I'm deep-copying the fields from the DB tables because I'm not sure if otherwise side-effects would not be
+        # introduced when changing the name of the fields
+        billing_street_address = db.address.street_address
+        billing_street_address.name = 'billing_street_address'
+
+        billing_city = db.address.city
+        billing_city.name = 'billing_city'
+
+        billing_country = db.address.country
+        billing_country.name = 'billing_country'
+
+        billing_postcode = db.address.postcode
+        billing_postcode.name = 'billing_postcode'
+
+        # Create form
+        form = SQLFORM.factory(db.user,
+                               db.address,
+                               db.credit_card,
+                               # next we mimick the address fields in case credit card doesn't use the same address
+                               # TODO ZE CHECKBOX
+                               billing_street_address,
+                               billing_city,
+                               billing_country,
+                               billing_postcode)
+
+    return dict(form=form)
 
 
 # This is the log-in action. It is a simplified log-in (no password, just username), as no security is to be implemented
@@ -108,7 +148,11 @@ def dashboard():
         # For the diagram of the state machine, check the design document
 
         if bootable.status == 'Not Available':
-            actions = [delete_action(bootable), open_for_pledges_action(bootable)]
+            # Aside from the state machine actions, projects in this state can also be edited
+            actions = [delete_action(bootable),
+                       open_for_pledges_action(bootable),
+                       A('Edit Information', _class='btn', _href=URL('bootable', 'edit', vars={'bootable':bootable.id})),  # Edit the bootable
+                       A('Edit Rewards', _class='btn', _href=URL('bootable', 'edit_rewards', vars={'bootable':bootable.id}))]  # Edit the rewards
         elif bootable.status == 'Open For Pledges':
             actions = [close_action(bootable)]
         elif bootable.status == 'Funded':

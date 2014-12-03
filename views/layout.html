@@ -105,14 +105,14 @@
                     {{if session.logged_in_user:}}
                         <li>{{=A('My Pledges', _href=URL('user', 'my_pledges'))}}</li>
                         <li>{{=A('My Dashboard', _href=URL('user', 'dashboard'))}}</li>
-                        <li>{{=A('User Edit', _href=URL('user', 'edit'))}}</li>
+                        <li>{{=A('User Edit', _href=URL('user', 'signup_or_edit'))}}</li>
                         <li>{{=A('Logout', _href=URL('user', 'logout'))}}</li>
                     {{else:}}
                         <li>{{=A('Login', _href=URL('user', 'login'))}}</li>
-                        <li>{{=A('Sign up', _href=URL('user', 'signup'))}}</li>
+                        <li>{{=A('Sign up', _href=URL('user', 'signup_or_edit'))}}</li>
                     {{pass}}
 
-                    <li>{{=A('Create a Bootable!', _href=URL('bootable', 'create'))}}</li>
+                    <li>{{=A('Create a Bootable!', _href=URL('bootable', 'edit'))}}</li>
                 </ul>
 
             </div><!--/.nav-collapse -->

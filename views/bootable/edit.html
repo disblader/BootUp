@@ -1,6 +1,9 @@
 {{extend 'layout.html'}}
 <!-- This page will handle bootable creation -->
 
+{{if not request.vars.bootable:}}
 <h2>Create a Bootable</h2>
-<p>First, provide some core information to create your Bootable.</p>
+<p>Please provide some basic information about your project.</p>
+{{pass}}
+
 {{=form}}

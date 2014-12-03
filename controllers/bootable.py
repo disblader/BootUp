@@ -3,17 +3,32 @@ import datetime
 from decimal import *
 
 
-# This is the controller for the action of creating a bootable
-def create():
+# This is the controller for the action of creating or editing a bootable
+#
+# INPUT:
+# 'bootable' - if you pass a bootable ID into this page as a request variable, then the page becomes an edit page for that
+#               bootable. Otherwise it creates a new bootable.
+def edit():
     # This action is only available if you're logged in
     check_and_redirect()
 
-    form = SQLFORM(db.bootable)
+    if request.vars.bootable:
+        bootable = db(db.bootable.id == request.vars.bootable).select().first()
 
-    user = db(db.user.username == session.logged_in_user).select(db.user.ALL).first()
+        form = SQLFORM(db.bootable, bootable, submit_button='Submit the changes', showid=False)
 
-    if form.validate():
-        id = db.bootable.insert(title=form.vars.title,
+        if form.process().accepted:
+            session.flash = 'The Bootable got updated successfully!'
+            redirect(URL('user', 'dashboard'))
+
+    else:
+        form = SQLFORM(db.bootable,
+                   submit_button='Create this Bootable!')
+
+        user = db(db.user.username == session.logged_in_user).select(db.user.ALL).first()
+
+        if form.validate():
+            id = db.bootable.insert(title=form.vars.title,
                            description=form.vars.description,
                            category=form.vars.category,
                            funding_goal=Decimal(form.vars.funding_goal),
@@ -25,7 +40,7 @@ def create():
                            bm_description=form.vars.bm_description,
                            funded_so_far=0)
 
-        redirect(URL('edit_rewards', vars={'new':True, 'bootable':id}))
+            redirect(URL('edit_rewards', vars={'new':True, 'bootable':id}))
 
     return dict(form=form)
 
@@ -49,14 +64,21 @@ def edit_rewards():
         pledge_tier = db(db.pledge_tier.id == request.vars.tier_id).select().first()
 
         form = SQLFORM(db.pledge_tier,
-                               pledge_tier,
-                               showid=False)
+                        pledge_tier,
+                        showid=False,
+                        submit_button='Update this rewards tier!')
 
         if form.process().accepted:
-            response.flash = 'Successfully updated the reward tier.'
+            session.flash = 'Successfully updated the reward tier.'
+            # the form doesn't refresh the page by default (causing stale data to appear) soooo.... This ugly workaround
+            # Also, it's late so I don't know how to prevent 'new' from getting added easily. So I'm making an if statement. Don't judge me!
+            if request.vars.new:
+                redirect(URL(vars={'bootable':request.vars.bootable, 'tier_id':request.vars.tier_id}))
+            else:
+                redirect(URL(vars={'bootable':request.vars.bootable, 'tier_id':request.vars.tier_id, 'new':request.vars.new}))
 
     else:
-        form = SQLFORM(db.pledge_tier, showid=False)
+        form = SQLFORM(db.pledge_tier, showid=False, submit_button='Create this rewards tier!')
         # We insert manually because we need to fill some hidden data in
         if form.validate():
             db.pledge_tier.insert(
@@ -66,6 +88,7 @@ def edit_rewards():
                 bootable=bootable
             )
             response.flash = 'Success! Created a new reward tier'
+            # TODO redirect for refresh, yo
 
     return dict(form=form, pledge_tier=pledge_tier, all_tiers=all_tiers)
 
@@ -138,10 +161,6 @@ def pledge():
 
     form = SQLFORM(db.pledge,
                    submit_button='Make this pledge!')
-
-    # form = SQLFORM.factory(
-    #         Field('value', 'decimal(19,2)', label="Value of your pledge", requires=IS_NOT_EMPTY())
-    #     )
 
     # We're preventing the default form IO in order to get some other stuff going
     if form.validate():

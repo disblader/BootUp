@@ -9,39 +9,65 @@
 <p>You have successfully created your bootable!</p>
 <p>It is now in a state 'Not Available'.</p>
 <p>That means no one can else but you can access it, so you can make changes to it until you think it is ready to
-be published.</p>
+    be published.</p>
 <p>When you think it is ready for the world, visit your Dashboard (via a link at the top right of the page, on the navbar)
-and next to this bootable, in the action column press 'Open for Pledges'</p>
+    and next to this bootable, in the action column press 'Open for Pledges'</p>
 <p>Before you do that, however you should create some rewards for people who will pledge towards funding your project.</p>
 <p>You can do that using the controls below.</p>
 <p>Your changes are saved with each submit, so once you're done, you can just go to your dashboard and open this project for pledges!</p>
 {{pass}}
 
-{{if not pledge_tier:}}
-<h3>New Rewards</h3>
-{{else:}}
-<h3>Edit rewards for {{=pledge_tier.pledge_value}} GBP reward tier</h3>
-{{pass}}
-{{=form}}
+<div class="row">
 
-<!-- TODO Existing rewards table -->
-{{if all_tiers:}}
-<table>
-    <thead>
-    <tr>
-        <th>Reward value</th>
-        <th>Reward description</th>
-        <th>Includes previous?</th>
-    </tr>
-    </thead>
-    <tbody>
-    {{for pledge_tier in all_tiers:}}
-    <tr>
-        <td>{{=pledge_tier.pledge_value}}</td>
-        <td>{{=pledge_tier.description}}</td>
-        <td>{{='Yes' if pledge_tier.includes_lower else 'No'}}</td>
-    </tr>
-    {{pass}}
-    </tbody>
-</table>
-{{pass}}
+    <div class="span6">
+        {{if not pledge_tier:}}
+        <h3>New Rewards</h3>
+        {{else:}}
+        <h3>Edit rewards for {{=pledge_tier.pledge_value}} GBP reward tier</h3>
+        {{pass}}
+        {{=form}}
+    </div>
+
+    <div class="span6">
+        {{if all_tiers:}}
+        <h3>Existing rewards</h3>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Reward value</th>
+                <th>Reward description</th>
+                <th>Includes previous?</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {{ # This is a line that shows the 'add new tier' button. I think this is a good place to put it }}
+            <tr>
+                <td></td>
+                {{ # This is probably not the easiest way to avoid 'new' getting added to the vars, but it's too late and I'm tired, okay? }}
+                {{if request.vars.new:}}
+                <td><a href="{{=URL(vars={'bootable':request.vars.bootable, 'new':request.vars.new})}}" class="btn">New Reward Tier</a></td>
+                {{else:}}
+                <td><a href="{{=URL(vars={'bootable':request.vars.bootable, })}}" class="btn">New Reward Tier</a></td>
+                {{pass}}
+                <td></td>
+                <td></td>
+            </tr>
+            {{for pledge_tier in all_tiers:}}
+            <tr>
+                <td>{{=pledge_tier.pledge_value}} GBP</td>
+                <td>{{=pledge_tier.description}}</td>
+                <td>{{='Yes' if pledge_tier.includes_lower else 'No'}}</td>
+                {{ # This is probably not the easiest way to avoid 'new' getting added to the vars, but it's too late and I'm tired, okay? }}
+                {{if request.vars.new:}}
+                <td><a href="{{=URL(vars={'bootable':request.vars.bootable, 'tier_id':pledge_tier.id, 'new':request.vars.new})}}" class="btn">Edit</a></td>
+                {{else:}}
+                <td><a href="{{=URL(vars={'bootable':request.vars.bootable, 'tier_id':pledge_tier.id})}}" class="btn">Edit</a></td>
+                {{pass}}
+            </tr>
+            {{pass}}
+            </tbody>
+        </table>
+        {{pass}}
+    </div>
+</div>

@@ -4,10 +4,10 @@ if not request.env.web2py_runtime_gae:
 ## Address table definition
 
 # Fields
-street_address = Field('street_address', 'string', required=True)
-city = Field('city', 'string', required=True)
-country = Field('country', 'string', required=True)
-postcode = Field('postcode', 'string', length=7, required=True)
+street_address = Field('street_address', 'string', required=True, requires=IS_NOT_EMPTY())
+city = Field('city', 'string', required=True, requires=IS_NOT_EMPTY())
+country = Field('country', 'string', required=True, requires=IS_NOT_EMPTY())
+postcode = Field('postcode', 'string', length=7, required=True, requires=[IS_NOT_EMPTY(),IS_MATCH('\w{7}', error_message="Must consist of 7 letters or numbers (regular UK postcode, with the space omitted")])
 
 # Table definition
 db.define_table('address',
@@ -34,9 +34,9 @@ db.define_table('credit_card',
 ## User table definition
 
 # Fields
-username = Field('username', 'string', unique=True, required=True, requires=IS_ALPHANUMERIC('Username must consist of letters and numbers only'))
-real_name = Field('real_name', 'string', required=True, requires=IS_ALPHANUMERIC('Your name must consist of letters and numbers only'))
-birthdate = Field('birthdate', 'date', required=True)
+username = Field('username', 'string', unique=True, required=True, requires=IS_NOT_EMPTY())
+real_name = Field('real_name', 'string', required=True, requires=IS_NOT_EMPTY())
+birthdate = Field('birthdate', 'date', required=True, requires=IS_NOT_EMPTY())
 # The next two fields, while technically should be required, are made not to be to ease the creation of the user object
 address = Field('address', db.address, required=False, readable = False, writable = False)
 credit_card = Field('credit_card', db.credit_card, required=False, readable = False, writable = False)

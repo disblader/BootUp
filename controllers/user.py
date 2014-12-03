@@ -1,5 +1,5 @@
 # This is a controller for user actions (like logging in, checking their user profile, etc.)
-import copy
+import datetime
 
 
 # This page creates a new user, or updates an existing user based on whether a user is logged in.
@@ -15,28 +15,23 @@ def signup_or_edit():
 
         # I'm deep-copying the fields from the DB tables because I'm not sure if otherwise side-effects would not be
         # introduced when changing the name of the fields
-        billing_street_address = db.address.street_address
-        billing_street_address.name = 'billing_street_address'
-
-        billing_city = db.address.city
-        billing_city.name = 'billing_city'
-
-        billing_country = db.address.country
-        billing_country.name = 'billing_country'
-
-        billing_postcode = db.address.postcode
-        billing_postcode.name = 'billing_postcode'
 
         # Create form
-        form = SQLFORM.factory(db.user,
-                               db.address,
-                               db.credit_card,
-                               # next we mimick the address fields in case credit card doesn't use the same address
-                               # TODO ZE CHECKBOX
-                               billing_street_address,
-                               billing_city,
-                               billing_country,
-                               billing_postcode)
+        form = SQLFORM.factory(db.user, db.address)
+
+        if form.validate():
+            address_id = db.address.insert(street=form.vars.street_address,
+                                           city=form.vars.city,
+                                           country=form.vars.country,
+                                           postcode=form.vars.postcode)
+
+            address = db(db.address.id == address_id).select().first()
+
+            user_id = db.address.insert(username=form.vars.username,
+                                        real_name=form.vars.real_name,
+                                        birthdate=form.vars.country, #TODO parse the date
+                                        address=address)
+
 
     return dict(form=form)
 

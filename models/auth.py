@@ -4,6 +4,7 @@
 # This function checks whether the user is logged in and if that is not the case, redirects to login with
 # a link back to the desired page.
 def check_and_redirect():
+    # TODO redirect to finishing the sign-up if no credit card specified yet.
     if not session or not session.logged_in_user:
         session.flash = 'You must log in before you can do that'
         redirect(URL('user', 'login', vars={'next_c':request.controller,'next_f':request.function, 'vars':request.vars}))

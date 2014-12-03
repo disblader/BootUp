@@ -88,7 +88,15 @@ def edit_rewards():
                 bootable=bootable
             )
             response.flash = 'Success! Created a new reward tier'
-            # TODO redirect for refresh, yo
+
+            # the form doesn't refresh the page by default (causing stale data to appear) soooo.... This ugly workaround
+            # Also, it's late so I don't know how to prevent 'new' from getting added easily. So I'm making an if statement. Don't judge me!
+            if request.vars.new:
+                redirect(URL(vars={'bootable':request.vars.bootable}))
+            else:
+                redirect(URL(vars={'bootable':request.vars.bootable, 'new':request.vars.new}))
+
+
 
     return dict(form=form, pledge_tier=pledge_tier, all_tiers=all_tiers)
 
@@ -158,6 +166,15 @@ def pledge():
 
     bootable = db(db.bootable.id == request.vars.id).select(db.bootable.ALL).first()
     user = db(db.user.username == session.logged_in_user).select(db.user.ALL).first()
+
+    # The user can end up in here if he wasn't logged in, pressed pledge and got redirected here. If that is the case,
+    # we need to check if the user has pledged towards this by any chance.
+    # The following lines do that by checking if a pledge with the combination expected exist
+    stuff = db((db.pledge.user == user) & (db.pledge.bootable == bootable)).select().first()
+    if stuff:
+        # this means that there exists a pledge from this user to this bootable. Redirect back with a message
+        session.flash = "You have already pledged towards this project"
+        redirect(URL('view', vars={'id':request.vars.id}))
 
     form = SQLFORM(db.pledge,
                    submit_button='Make this pledge!')

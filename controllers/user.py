@@ -1,5 +1,4 @@
 # This is a controller for user actions (like logging in, checking their user profile, etc.)
-import datetime
 
 
 # This page creates a new user, or updates an existing user based on whether a user is logged in.
@@ -8,9 +7,7 @@ import datetime
 def signup_or_edit():
 
     if session.logged_in_user:
-        # Edit form
-        # form = SQLFORM(db.user, db.credit_card, db.address, )
-        print(' ')
+        redirect(URL('edit'))
     else:
 
         # I'm deep-copying the fields from the DB tables because I'm not sure if otherwise side-effects would not be
@@ -20,18 +17,96 @@ def signup_or_edit():
         form = SQLFORM.factory(db.user, db.address)
 
         if form.validate():
-            address_id = db.address.insert(street=form.vars.street_address,
+            address_id = db.address.insert(street_address=form.vars.street_address,
                                            city=form.vars.city,
                                            country=form.vars.country,
                                            postcode=form.vars.postcode)
 
             address = db(db.address.id == address_id).select().first()
 
-            user_id = db.address.insert(username=form.vars.username,
+            user_id = db.user.insert(username=form.vars.username,
                                         real_name=form.vars.real_name,
-                                        birthdate=form.vars.country, #TODO parse the date
+                                        birthdate=form.vars.birthdate,
                                         address=address)
 
+            # Now this might seem dodgy; after all, all data should be set up straight away.
+            # However, this is not an issue. Whenever the user tries to log in, if it hasn't finished the last step
+            # (i.e. setting up the credit card), the user will be redirected to the page asking them to finish creating
+            # their account. So the user will never end up logging in without finishing their account
+            session.flash='Successfully created the account. Please provide credit card information to finish creation.'
+
+            redirect(URL('finalise', vars={'user_id':user_id, 'new':True}))
+
+    return dict(form=form)
+
+
+# The user gets redirected here to edit his/her account details.
+def edit():
+
+    print('Potato jam')
+
+    check_and_redirect()
+
+    user = db(db.user.username == session.logged_in_user).select().first()
+    form_user = SQLFORM(db.user, user, showid=False)
+
+    if form_user.process().accepted:
+        session.flash = 'General user information updated'
+
+    address = db(db.address.id == user.address.id).select().first()
+    form_user_address = SQLFORM(db.address, address, showid=False)
+
+    if form_user_address.process().accepted:
+        session.flash = 'User address updated'
+
+    credit_card = db(db.credit_card.id == user.credit_card.id).select().first()
+    form_credit_card = SQLFORM(db.credit_card, credit_card, showid=False)
+
+    if form_credit_card.process().accepted:
+        session.flash = 'User credit card updated'
+
+    credit_card_address = db(db.address.id == credit_card.address.id).select().first()
+    form_credit_card_address = SQLFORM(db.address, credit_card_address, showid=False)
+
+    if form_credit_card_address.process().accepted:
+        session.flash = 'User billing address updated'
+
+    return dict(form_user=form_user, form_user_address=form_user_address, form_credit_card=form_credit_card, form_credit_card_address=form_credit_card_address)
+
+
+# This is the page to which users are redirected to finish their account (i.e. provide credit card information).
+# When a user tries to log in, if they hadn't finished their account, they will always be redirected to this page
+# INPUT:
+# user_id - the ID of the user on whom the finalisation is to be performed
+# new - if this argument exists, then new user instructions will be displayed
+def finalise():
+
+    if request.vars.new:
+        form = SQLFORM.factory(db.credit_card, db.address)
+
+        if form.validate():
+            address_id = db.address.insert(street_address=form.vars.street_address,
+                                           city=form.vars.city,
+                                           country=form.vars.country,
+                                           postcode=form.vars.postcode)
+
+            address = db(db.address.id == address_id).select().first()
+
+            credit_card_id = db.credit_card.insert(number=form.vars.number,
+                                        expiration=form.vars.expiration,
+                                        pid=form.vars.pid,
+                                        address=address)
+
+            credit_card = db(db.credit_card.id == credit_card_id).select().first()
+
+            db(db.user.id == request.vars.user_id).update(credit_card=credit_card)
+
+            user = db(db.user.id == request.vars.user_id).select().first()
+
+            session.flash = 'Thank you for for creating an account on BootUp'
+            log_user_in(user.username)
+
+            redirect(URL('default', 'index'))
 
     return dict(form=form)
 
@@ -45,7 +120,7 @@ def login():
     # if request.vars.error:
     #     response.flash = request.vars.error
 
-    form = FORM(INPUT(_name='username', requires=IS_IN_DB(db, db.user.username, error_message='The user cannot be found; please try again')),
+    form = FORM(INPUT(_name='username', _placeholder="Enter your username here", requires=IS_IN_DB(db, db.user.username, error_message='The user cannot be found; please try again')),
                 INPUT(_type='submit'))
 
     if form.process(formname='login_form').accepted:
@@ -56,16 +131,7 @@ def login():
         else:
             redirect(URL('default', 'index'))
 
-            # TODO
-
     return dict(form=form)
-
-
-# This is the action of editing your own user data.
-# Requires the user to be logged in
-def edit():
-    check_and_redirect()
-    return dict()
 
 
 # Pretty straightforward: logs the user out
@@ -172,12 +238,9 @@ def dashboard():
 #
 # INPUT: the request has to have an attribute named 'id' which is the ID of the bootable on which the operation
 # will be performed
-# TODO Test delete stuff
 def delete_bootable():
     bootable = db(db.bootable.id == request.vars.id).select(db.bootable.title).first()
     session.flash = 'Deleted the bootable \'' + bootable.title + '\''
-    db(db.pledge.bootable.id == request.vars.id).delete()
-    db(db.pledge_tier.bootable.id == request.vars.id).delete()
     db(db.bootable.id == request.vars.id).delete()
     redirect(URL('dashboard'))
     return dict()

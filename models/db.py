@@ -7,7 +7,7 @@ if not request.env.web2py_runtime_gae:
 street_address = Field('street_address', 'string', required=True, requires=IS_NOT_EMPTY())
 city = Field('city', 'string', required=True, requires=IS_NOT_EMPTY())
 country = Field('country', 'string', required=True, requires=IS_NOT_EMPTY())
-postcode = Field('postcode', 'string', length=7, required=True, requires=[IS_NOT_EMPTY(),IS_MATCH('\w{7}', error_message="Must consist of 7 letters or numbers (regular UK postcode, with the space omitted")])
+postcode = Field('postcode', 'string', length=8, required=True, requires=[IS_NOT_EMPTY(),IS_MATCH('\w{4} \w{3}', error_message="Must consist of 2 blocks of 4 symbols and 3 symbols respectively (e.g. AB12 CD12)")])
 
 # Table definition
 db.define_table('address',
@@ -17,12 +17,12 @@ db.define_table('address',
 ## Credit Card table definition
 
 # Fields
-number = Field('number', 'bigint', required=True)
+number = Field('number', 'bigint', required=True, requires=[IS_NOT_EMPTY(), IS_MATCH('\d{16}', error_message="Must consist of 16 numbers")])
 # Expiration should store month and year. However, the closest data type for this is 'date'.
 # We will use it and ignore the day component
-expiration = Field('expiration', 'date', required=True)
+expiration = Field('expiration', 'date', required=True, requires=IS_NOT_EMPTY())
 # pid stands for personal identification code
-pid = Field('pid', 'integer', required=True)
+pid = Field('pid', 'integer', required=True, requires=[IS_NOT_EMPTY(), IS_MATCH('\d{3}', error_message="Must consist of 3 numbers on the back of your credit card")])
 # While address should be required, it is significantly easier to handle the sign-up process when it is not
 address = Field('address', db.address, required=False, readable = False, writable = False)
 
